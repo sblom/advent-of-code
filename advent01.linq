@@ -71,7 +71,9 @@ public class AoC2019Day1
 
 async Task Main()
 {
-	BenchmarkRunner.Run<AoC2019Day1>();	
+	//BenchmarkRunner.Run<AoC2019Day1>();
+	new AoC2019Day1().Part1Foreach().Dump("Part 1");
+	new AoC2019Day1().Part2Foreach().Dump("Part 2");
 }
 
 //| Method | Mean | Error | StdDev | Median |
