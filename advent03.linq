@@ -19,6 +19,8 @@
 </Query>
 
 var lines = await AoC.GetLinesWeb();
+//lines = @"R75,D30,R83,U83,L12,D49,R71,U7,L72
+//U62,R66,U55,R34,D71,R55,D58,R83".Split('\n');
 
 var (x, y) = (0, 0);
 
@@ -26,7 +28,9 @@ var mindist = int.MaxValue;
 
 var instrs = lines.First().Split(',');
 
-var points = new HashSet<(int, int)>();
+var points = new Dictionary<(int, int), int>();
+
+var time = 0;
 
 foreach (var instr in instrs)
 {
@@ -41,12 +45,14 @@ foreach (var instr in instrs)
 	
 	for (int i = 0; i < dist; ++i)
 	{
+		++time;
 		(x, y) = (x + dx, y + dy);
-		points.Add((x,y));
+		if (!points.ContainsKey((x,y))) points.Add((x,y), time);
 	}
 }
 
 (x,y) = (0,0);
+time = 0;
 instrs = lines.Skip(1).First().Split(',');
 
 foreach (var instr in instrs)
@@ -63,12 +69,13 @@ foreach (var instr in instrs)
 
 	for (int i = 0; i < dist; ++i)
 	{
+		++time;
 		(x, y) = (x + dx, y + dy);
-		if (points.Contains((x, y)))
+		if (points.ContainsKey((x, y)))
 		{
-			if (Math.Abs(x) + Math.Abs(y) < mindist) mindist = Math.Abs(x) + Math.Abs(y);
+			if (points[(x,y)] + time < mindist) mindist = points[(x,y)] + time;
 		}
 	}
 }
 
-mindist.Dump("Part 1");
+mindist.Dump("Part 2");
