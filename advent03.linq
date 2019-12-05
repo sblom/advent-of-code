@@ -1,4 +1,4 @@
-<Query Kind="Statements">
+<Query Kind="Program">
   <Connection>
     <ID>b7440089-72f5-46f7-8c5f-8419bdb81277</ID>
     <Persist>true</Persist>
@@ -18,64 +18,72 @@
   <Namespace>BenchmarkDotNet.Running</Namespace>
 </Query>
 
-var lines = await AoC.GetLinesWeb();
-//lines = @"R75,D30,R83,U83,L12,D49,R71,U7,L72
-//U62,R66,U55,R34,D71,R55,D58,R83".Split('\n');
-
-var (x, y) = (0, 0);
-
-var mindist = int.MaxValue;
-
-var instrs = lines.First().Split(',');
-
-var points = new Dictionary<(int, int), int>();
-
-var time = 0;
-
-foreach (var instr in instrs)
+(int Δx, int Δy) ΔxΔy(char c) => c switch
 {
-	var (dy, dx) = instr[0] switch {
-		'U' => (-1, 0),
-		'D' => (1,0),
-		'R' => (0, 1),
-		'L' => (0, -1)
-	};
-	
-	var dist = int.Parse(instr[1..]);
-	
-	for (int i = 0; i < dist; ++i)
-	{
-		++time;
-		(x, y) = (x + dx, y + dy);
-		if (!points.ContainsKey((x,y))) points.Add((x,y), time);
-	}
-}
+	'U' => (0, -1),
+	'D' => (0, 1),
+	'R' => (1, 0),
+	'L' => (-1, 0)
+};
 
-(x,y) = (0,0);
-time = 0;
-instrs = lines.Skip(1).First().Split(',');
-
-foreach (var instr in instrs)
+async Task Main()
 {
-	var (dy, dx) = instr[0] switch
+	var lines = await AoC.GetLinesWeb();
+	//lines = @"R75,D30,R83,U83,L12,D49,R71,U7,L72
+	//U62,R66,U55,R34,D71,R55,D58,R83".Split('\n');
+	
+	var (x, y) = (0, 0);
+	
+	var mindist = int.MaxValue;
+	
+	var instrs = lines.First().Split(',');
+	
+	var points = new Dictionary<(int, int), int>();
+	
+	var time = 0;
+	
+	foreach (var instr in instrs)
 	{
-		'U' => (-1, 0),
-		'D' => (1, 0),
-		'R' => (0, 1),
-		'L' => (0, -1)
-	};
-
-	var dist = int.Parse(instr[1..]);
-
-	for (int i = 0; i < dist; ++i)
-	{
-		++time;
-		(x, y) = (x + dx, y + dy);
-		if (points.ContainsKey((x, y)))
+		var (Δx, Δy) = ΔxΔy(instr[0]);
+		
+		var dist = int.Parse(instr.AsSpan()[1..]);
+		
+		for (int i = 0; i < dist; ++i)
 		{
-			if (points[(x,y)] + time < mindist) mindist = points[(x,y)] + time;
+			++time;
+			(x, y) = (x + Δx, y + Δy);
+			if (!points.ContainsKey((x,y))) points.Add((x,y), time);
 		}
 	}
+	
+	(x,y) = (0,0);
+	time = 0;
+	instrs = lines.Skip(1).First().Split(',');
+	
+	foreach (var instr in instrs)
+	{
+		var (dy, dx) = instr[0] switch
+		{
+			'U' => (-1, 0),
+			'D' => (1, 0),
+			'R' => (0, 1),
+			'L' => (0, -1)
+		};
+	
+		var dist = int.Parse(instr[1..]);
+	
+		for (int i = 0; i < dist; ++i)
+		{
+			++time;
+			(x, y) = (x + dx, y + dy);
+			if (points.ContainsKey((x, y)))
+			{
+				if (points[(x,y)] + time < mindist) mindist = points[(x,y)] + time;
+			}
+		}
+	}
+	
+	mindist.Dump("Part 2");
 }
 
-mindist.Dump("Part 2");
+// Define other methods, classes and namespaces here
