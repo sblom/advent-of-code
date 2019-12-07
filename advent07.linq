@@ -1,20 +1,70 @@
 <Query Kind="Program">
   <NuGetReference>BenchmarkDotNet</NuGetReference>
-  <Namespace>System.Threading.Tasks</Namespace>
+  <NuGetReference>System.Collections.Immutable</NuGetReference>
   <Namespace>BenchmarkDotNet.Attributes</Namespace>
   <Namespace>BenchmarkDotNet.Running</Namespace>
+  <Namespace>System.Collections.Immutable</Namespace>
+  <Namespace>System.Threading.Tasks</Namespace>
 </Query>
 
 async Task Main()
 {
 	var lines = await AoC.GetLinesWeb();
+	var mem = lines.First().Split(',').Select(n => int.Parse(n)).ToArray();
+
+	foreach (var perm in Permute(Enumerable.Range(0,5))
+	{
+		var in = 0;
+		for (int i = 0; i < 5; ++i)
+		{
+			new IntCodeVM(mem, new VMInOut { Inputs = new List<int> { perm[0], 0} }),
+		}
+	}
+}
+
+public IEnumerable<IEnumerable<T>> Permute<T>(IEnumerable<T> @in)
+{
+	var items = ImmutableList.Create(@in);
+	var stack = ImmutableStack<(ImmutableList<T>,int)>.Empty;
 	
+	var (curitems, pos) = (items, 0);
 	
+	while (true)
+	{
+		if (pos > curitems.Count())
+		{
+			(curitems, pos) = stack.Peek();
+			stack = stack.Pop();
+		}
+	}
 }
 
 public interface IInOut {
 	public int Read();
 	public void Write(int output);
+}
+
+public class VMInOut : IInOut
+{
+	public List<int> Inputs { get; set; }
+	public List<int> Outputs { get; }
+	
+	public VMInOut()
+	{
+		Outputs = new List<int>();
+	}
+	
+	public int Read()
+	{
+		var val = Inputs[0];
+		Inputs.RemoveAt(0);
+		return val;
+	}
+
+	public void Write(int output)
+	{
+		Outputs.Add(output);
+	}
 }
 
 public class IntCodeVM
