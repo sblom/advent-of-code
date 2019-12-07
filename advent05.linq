@@ -17,40 +17,41 @@ void Main()
 
 	var origmem = lines.First().Split(',').Select(x => int.Parse(x)).ToArray();
 
-	var mem1 = (int[])origmem.Clone();
-	ref int locA = ref mem1[0];
-	ref int locB = ref mem1[0];
-	ref int locC = ref mem1[0];
+	var mem = (int[])origmem.Clone();
+	ref int locA = ref mem[0];
+	ref int locB = ref mem[0];
+	ref int locC = ref mem[0];
 
-	int loc = 0;
+	int ip = 0;
 
-	while (mem1[loc] != 99)
+	while (ip >= 0 && ip < mem.Length)
 	{
-		var instr = mem1[loc] % 100;
-		var immA = (mem1[loc] / 100) % 10 > 0;
-		var immB = (mem1[loc] / 1000) % 10 > 0;
-		var immC = mem1[loc] / 10000 > 0;
+		var instr = mem[ip] % 100;
+		var immA = (mem[ip] / 100) % 10 > 0;
+		var immB = (mem[ip] / 1000) % 10 > 0;
+		var immC = mem[ip] / 10000 > 0;
 
-		var (op, len) = ops[instr];
+		var (mnem, op, instrLen) = ops[instr];
 
-		if (len > 1) if (immA) locA = ref mem1[loc + 1]; else locA = ref mem1[mem1[loc + 1]];
-		if (len > 2) if (immB) locB = ref mem1[loc + 2]; else locB = ref mem1[mem1[loc + 2]];
-		if (len > 3) if (immC) locC = ref mem1[loc + 3]; else locC = ref mem1[mem1[loc + 3]];
+		if (instrLen > 1) if (immA) locA = ref mem[ip + 1]; else locA = ref mem[mem[ip + 1]];
+		if (instrLen > 2) if (immB) locB = ref mem[ip + 2]; else locB = ref mem[mem[ip + 2]];
+		if (instrLen > 3) if (immC) locC = ref mem[ip + 3]; else locC = ref mem[mem[ip + 3]];
 
-		loc = op(ref locA, ref locB, ref locC, loc);
+		ip = op(ref locA, ref locB, ref locC, ip);
 	}
 }
 
-delegate int Op(ref int A, ref int B, ref int C, int loc);
+delegate int Op(ref int A, ref int B, ref int C, int ip);
 
-Dictionary<int, (Op op, int @params)> ops = new Dictionary<int, (Op, int)>
+Dictionary<int, (string mnem, Op op, int instrLen)> ops = new Dictionary<int, (string, Op, int)>
 {
-	{ 1, ((ref int A, ref int B, ref int C, int loc) => { C = A + B; return loc + 4; }, 4) },
-	{ 2, ((ref int A, ref int B, ref int C, int loc) => { C = A * B; return loc + 4; }, 4) },
-	{ 3, ((ref int A, ref int B, ref int C, int loc) => { A = int.Parse(Console.ReadLine()); return loc + 2; }, 2) },
-	{ 4, ((ref int A, ref int B, ref int C, int loc) => { Console.Write(A); return loc + 2; }, 2) },
-	{ 5, ((ref int A, ref int B, ref int C, int loc) => { if (A != 0) return B; else return loc + 3; }, 3) },
-	{ 6, ((ref int A, ref int B, ref int C, int loc) => { if (A == 0) return B; else return loc + 3; }, 3) },
-	{ 7, ((ref int A, ref int B, ref int C, int loc) => { if (A < B) C = 1; else C = 0; return loc + 4; }, 4) },
-	{ 8, ((ref int A, ref int B, ref int C, int loc) => { if (A == B) C = 1; else C = 0; return loc + 4; }, 4) },
+	{ 1,  ("add",  (ref int A, ref int B, ref int C, int ip) => { C = A + B; return ip + 4; }, 4) },
+	{ 2,  ("mul",  (ref int A, ref int B, ref int C, int ip) => { C = A * B; return ip + 4; }, 4) },
+	{ 3,  ("in",   (ref int A, ref int B, ref int C, int ip) => { A = int.Parse(Console.ReadLine()); return ip + 2; }, 2) },
+	{ 4,  ("out",  (ref int A, ref int B, ref int C, int ip) => { Console.WriteLine(A); return ip + 2; }, 2) },
+	{ 5,  ("jnz",  (ref int A, ref int B, ref int C, int ip) => { if (A != 0) return B; else return ip + 3; }, 3) },
+	{ 6,  ("jz",   (ref int A, ref int B, ref int C, int ip) => { if (A == 0) return B; else return ip + 3; }, 3) },
+	{ 7,  ("lt",   (ref int A, ref int B, ref int C, int ip) => { if (A < B) C = 1; else C = 0; return ip + 4; }, 4) },
+	{ 8,  ("eq",   (ref int A, ref int B, ref int C, int ip) => { if (A == B) C = 1; else C = 0; return ip + 4; }, 4) },
+	{ 99, ("halt", (ref int A, ref int B, ref int C, int ip) => { return -1; }, 1) },
 };
