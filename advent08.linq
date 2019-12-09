@@ -68,6 +68,7 @@ for (int y = 0; y < 6; ++y)
 var res = from y in Enumerable.Range(0, 6)
 		  select from x in Enumerable.Range(0, 25)
 		  select (from i in Enumerable.Range(0, line.Length / 25 / 6)
-		  select line[(i * 25 * 6 + y * 25 + x)]).Aggregate((a, b) => a == '2' ? b : a);
+		  		  select line[(i * 25 * 6 + y * 25 + x)])
+				  	.Aggregate((a, b) => a == '2' ? b : a);
 
-res.Select(line => string.Join("", line.Select(ch => ch == '1' ? "XX" : "  "))).DumpFixed("Part 2 LINQWhack");
+string.Join("\n",res.Select(line => string.Join("", line.Select(ch => ch == '1' ? "XX" : "  ")))).DumpFixed("Part 2 LINQWhack");
