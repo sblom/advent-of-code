@@ -39,7 +39,9 @@ void strinc(char[] pwd)
 	}
 }
 
-line = "abcdefgh".ToCharArray();
+//line = "abcdefgh".ToCharArray();
+
+int n = 0;
 
 while (true)
 {
@@ -61,7 +63,8 @@ while (true)
 	}
 	if (r1 && pairs.Count >= 2)
 	{
-		string.Join("", line).Dump();
-		break;
+		n++;
+		string.Join("", line).Dump($"Part {n}");
+		if (n == 2) break;
 	}
 }
