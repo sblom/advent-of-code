@@ -15,25 +15,26 @@ int total(JToken fragment)
 	switch (fragment)
 	{
 		case JObject o:
-			return o.Values().Select(v => total(v)).Sum();
-		case JArray a:
-			return a.Values().Select(v => total(v)).Sum();
-		case JProperty p:
-			if (p.Type == JTokenType.Integer)
-			{
-				return p.Value<int>();
-			}
-			else if (p.Type == JTokenType.Property)
-			{
-				return total(p.Value);
-			}
-			else
+			if (o.Values().Any(v => v.Type == JTokenType.String && v.Value<string>() == "red"))
 			{
 				return 0;
 			}
+			return o.Children().Select(v => total(v)).Sum();
+		case JArray a:
+			return a.Children().Select(v => total(v)).Sum();
+		case JProperty p:
+			return total(p.Value);
+		case JValue v:
+			if (v.Type == JTokenType.Integer)
+				return v.Value<int>();
+			else
+				return 0;
 		default:
 			return 0;
 	}
 }
+
+//109528 is too high for Part 2
+//42855 is too low
 
 total(doc).Dump();
