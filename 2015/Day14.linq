@@ -21,12 +21,17 @@ for (int i = 1; i <= 2503; i++)
 					let surplus = (remainder < r.sprint) ? (remainder * r.speed) : (r.speed * r.sprint)
 					select (r.name, distance: @base + surplus);
 
-	scores[distances.OrderByDescending(d => d.distance).First().name]++;
+	var max = distances.Max(x => x.distance);
+	
+	foreach (var r in distances.Where(x => x.distance == max))
+	{
+		scores[r.name]++;
+	}
 }
 
-scores.Dump();
+scores.Dump(); scores.Values.Sum().Dump();
 
-// 647 is too low.
+// 647 is too low. 648 is too low.
 scores.OrderByDescending(x => x.Value).First().Value.Dump("Part 2");
 
 // 896 is too low.
