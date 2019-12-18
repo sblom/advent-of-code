@@ -3,46 +3,46 @@
 </Query>
 
 var lines = await AoC.GetLinesWeb();
-
 var map = lines.Select(x => x.Trim().ToArray()).ToArray();
 
-var start = (from y in Enumerable.Range(0,map.Length) from x in Enumerable.Range(0,map[0].Length) where map[y][x] == '@' select (x, y)).First();
+(int dx, int dy)[] dirs = new[] { (-1, 0), (1, 0), (0, -1), (0, 1) };
 
-(int dx, int dy)[] dirs = new[] { (-1, 0), (1, 0), (0, -1), (0, 1)};
+Func<char,(int x, int y)> findkey = (char ch) => (from y in Enumerable.Range(0, map.Length) from x in Enumerable.Range(0, map[0].Length) where map[y][x] == ch select (x, y)).First();
 
-(IImmutableSet<char> keys, (int x, int y) loc, int steps) state;
+Dictionary<char,Dictionary<char,(int dist,IImmutableSet<char> barriers)>> distances = new Dictionary<char, System.Collections.Generic.Dictionary<char, (int dist, System.Collections.Immutable.IImmutableSet<char> barriers)>>();
 
-IImmutableDictionary<char, (int steps, (int x,int y) loc)> ReachableKeys(IImmutableSet<char> keys, (int x, int y) loc)
+distances['@'] = FindDistances('@').ToDictionary(x => x.Key, x => x.Value);
+for (char ch = 'a'; ch <= 'z'; ch++)
 {
-	var reachable = ImmutableDictionary<char, (int, (int, int))>.Empty;
+	distances[ch] = FindDistances(ch).ToDictionary(x => x.Key, x => x.Value);
+}
 
-	var frontier = new Queue<(IImmutableSet<char> keys, (int x, int y) loc, int steps, IImmutableSet<(int,int)> visited)>(new[] {(keys, loc, 0, ImmutableHashSet<(int,int)>.Empty.Add(loc) as IImmutableSet<(int,int)>) });
+//distances.Dump();
+
+IImmutableDictionary<char,(int dist,IImmutableSet<char> barriers)> FindDistances(char ch)
+{
+	var loc = (from y in Enumerable.Range(0, map.Length) from x in Enumerable.Range(0, map[0].Length) where map[y][x] == ch select (x, y)).First();
+
+	var distances = ImmutableDictionary<char,(int dist,IImmutableSet<char> barriers)>.Empty;
+
+	var frontier = new Queue<(IImmutableSet<char> barriers, (int x, int y) loc, int steps, IImmutableSet<(int,int)> visited)>(new[] {(ImmutableHashSet<char>.Empty as IImmutableSet<char>, loc, 0, ImmutableHashSet<(int,int)>.Empty.Add(loc) as IImmutableSet<(int,int)>) });
 	
 	while (frontier.Count > 0)
 	{
-		IImmutableSet<(int x, int y)> visited; int steps;
-		(keys, loc, steps, visited) = frontier.Dequeue();
+		IImmutableSet<char> barriers; IImmutableSet<(int x, int y)> visited; int steps;
+		(barriers, loc, steps, visited) = frontier.Dequeue();
 		var cell = map[loc.y][loc.x];
 		switch (cell)
 		{
 			case char c when c >= 'A' && c <= 'Z':
-				if (!keys.Contains(char.ToLower(c)))
-				{
-					// We don't have the right key, treat this as a wall.
-					continue;
-				}
+				barriers = barriers.Add(c);
 				// Otherwise, treat it as a path.
 				break;
 			case char c when c >= 'a' && c <= 'z':
-				// If it's a new key, stop here.
-				if (!keys.Contains(c))
+				if (!distances.ContainsKey(c))
 				{
-					keys = keys.Add(c);
-					if (!reachable.ContainsKey(c))
-						reachable = reachable.Add(c,(steps,loc));
-					continue;
+					distances = distances.Add(c,(steps,barriers));
 				}
-				// Otherwise, treat it like it's a path.
 				break;
 			case '#':
 				continue;
@@ -53,26 +53,46 @@ IImmutableDictionary<char, (int steps, (int x,int y) loc)> ReachableKeys(IImmuta
 			(int x, int y) next = (loc.x + dir.dx, loc.y + dir.dy);
 			if (!visited.Contains(next) && map[next.y][next.x] != '#')
 			{
-				frontier.Enqueue((keys, next, steps + 1, visited.Add(next)));
+				frontier.Enqueue((barriers, next, steps + 1, visited.Add(next)));
 			}
 		}
 	}
 	
-	return reachable;
+	return distances;
 }
 
-var frontier = new Queue<(IImmutableSet<char> keys, (int x, int y) loc, int steps)>(new[] { (ImmutableHashSet<char>.Empty as IImmutableSet<char>, start, 0) });
+var frontier = new Queue<(IImmutableSet<char> keys, char currentKey, int steps)>(new[] { (ImmutableHashSet<char>.Empty as IImmutableSet<char>, '@', 0) });
+
+var maxkeys = 0;
 
 while (frontier.Count > 0)
 {
+	var states = new Dictionary<(string, char), int>();
+	
 	var front = frontier.Dequeue();
+	
+	if (front.keys.Count > maxkeys)
+	{
+		maxkeys = front.keys.Count.Dump();
+	}
 	
 	if (front.keys.Count == 26) front.steps.Dump("Part 1");
 	
-	var reachableKeys = ReachableKeys(front.keys, front.loc).Take(1);
+	var reachableKeys = distances[front.currentKey].Where(kv => !front.keys.Contains(kv.Key) && kv.Value.barriers.All(key => front.keys.Contains(char.ToLower(key)))).OrderBy(kv => kv.Value.dist);
 	
 	foreach (var key in reachableKeys)
 	{
-		frontier.Enqueue((front.keys.Add(key.Key), key.Value.loc, front.steps + key.Value.steps));
+		var next = front.keys.Add(key.Key);
+		var hashkey = (string.Join("",next.OrderBy(ch => ch)), key.Key);
+		if (states.ContainsKey(hashkey) && front.steps + key.Value.dist >= states[hashkey])
+		{
+				continue;
+		}
+		else
+		{
+			states[hashkey] = front.steps + key.Value.dist;
+		}
+		
+		frontier.Enqueue((front.keys.Add(key.Key), key.Key, front.steps + key.Value.dist));
 	}
 }
