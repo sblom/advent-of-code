@@ -1,0 +1,9 @@
+// Validating benchmarks:
+Assembly LINQPadQuery, Version=1.0.0.1800, Culture=neutral, PublicKeyToken=null is located in temp. If you are running benchmarks from xUnit you need to disable shadow copy. It's not supported by design.
+Assembly LINQPadQuery which defines benchmarks references non-optimized MyExtensions.Core3
+	If you own this dependency, please, build it in RELEASE.
+	If you don't, you can disable this policy by using 'config.With(ConfigOptions.DisableOptimizationsValidator)'.
+Assembly LINQPadQuery which defines benchmarks is non-optimized
+Benchmark was built without optimization enabled (most probably a DEBUG configuration). Please, build it in RELEASE.
+If you want to debug the benchmarks, please see https://benchmarkdotnet.org/articles/guides/troubleshooting.html#debugging-benchmarks.
+Please enable optimizations in your LINQPad. Go to Preferences -> Query and select "compile with /optimize+"
