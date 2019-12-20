@@ -41,13 +41,7 @@ public IEnumerable<IEnumerable<T>> Permute<T>(IEnumerable<T> @in)
 	}
 }
 
-public interface IInOut
-{
-	public long Read();
-	public void Write(long output);
-}
-
-public class FindAC : IInOut
+public class FindAC : IntCodeVM.IInOut
 {
 	Dictionary<(int, int), int> map = new Dictionary<(int, int), int> { { (0, 0), 1 } };
 	IntCodeVM vm;
@@ -197,6 +191,12 @@ public class FindAC : IInOut
 
 public class IntCodeVM
 {
+	public interface IInOut
+	{
+		public long Read();
+		public void Write(long output);
+	}
+	
 	private IInOut io;
 	private long[] origmem;
 	public long[] mem;
