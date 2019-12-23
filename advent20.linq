@@ -46,7 +46,7 @@ var warpDict = warps.ToDictionary(x => x.Item1, x => x.Item2);
 
 var start = portals.Where(kv => kv.Item1 == ('A','A')).Select(kv => kv.Item2).Single();
 
-var frontier = ImmutableQueue<((int x,int y), int steps, IImmutableSet<(int,int)>)>.Empty.Enqueue(((start.x, start.y + 1), 0, ImmutableHashSet<(int,int)>.Empty.Add((start.x, start.y)).Add((start.x, start.y + 1))));
+var frontier = ImmutableQueue<((int x,int y), int depth, int steps, IImmutableSet<((int,int), int)>)>.Empty.Enqueue(((start.x, start.y + 1), 0, 0, ImmutableHashSet<((int,int),int)>.Empty.Add(((start.x, start.y), 0)).Add(((start.x, start.y + 1),0))));
 
 var dirs = new (int x, int y)[] {
 	(-1,0),(1,0),(0,-1),(0,1)
@@ -54,21 +54,22 @@ var dirs = new (int x, int y)[] {
 
 while (!frontier.IsEmpty)
 {
-	var (loc, steps, visited) = frontier.Peek();
+	var (loc, depth, steps, visited) = frontier.Peek();
 	frontier = frontier.Dequeue();
 	
 	foreach (var dir in dirs)
 	{
 		var next = (x: loc.x + dir.x, y: loc.y + dir.y);
-		if (visited.Contains(next)) continue;
 
 		if (map[next.y][next.x] == '.')
 		{
-			frontier = frontier.Enqueue((next, steps + 1, visited.Add(next)));
+			if (visited.Contains((next, depth))) continue;
+
+			frontier = frontier.Enqueue((next, depth, steps + 1, visited.Add((next, depth))));
 		}
 		else if (char.IsLetter(map[next.y][next.x]))
 		{
-			if (portals.Where(x => x.Item1 == ('Z', 'Z')).First().Item2 == next)
+			if (depth == 0 && portals.Where(x => x.Item1 == ('Z', 'Z')).First().Item2 == next)
 			{
 				// 630 is too high.
 				// 620 is still too high.
