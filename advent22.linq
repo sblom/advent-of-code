@@ -101,21 +101,12 @@ foreach (var line in lines.Reverse())
 	}
 }
 
-var round = (a, b);
-(a, b) = (1,0);
-
 var times = 101741582076661;
 
-for (int i = 0; i < 64; i++)
-{
-	if ((times & (1 << i)) != 0)
-	{
-		a = (long)((new BigInteger(a) * round.a) % decksize);
-		b = (long)((new BigInteger(b) * round.a + round.b) % decksize);
-	}	
-	round.a = (long)((new BigInteger(round.a) * round.a) % decksize);
-	round.b = (long)((new BigInteger(round.b) * round.a + round.b) % decksize);
-}
+var p2 = (BigInteger.ModPow(a, times, decksize) * pos +
+	 b * (BigInteger.ModPow(a, times, decksize) + decksize - 1)
+	   * (BigInteger.ModPow(a - 1, decksize - 2, decksize))
+	 + decksize) % decksize;
 
 // 95064543565353 is too low.
-((new BigInteger(a) * pos + b) % decksize).Dump("Part 2");
+p2.Dump("Part 2");
