@@ -41,6 +41,7 @@ async Task Main()
 public class NIC: IntCodeVM.IInOut {
 
 	public static (long,long) nicvals = (-1, -1);
+	public static bool firstnic = true;
 	List<NIC> nics;
 	bool[] idleflags;
 	int addr;
@@ -69,6 +70,7 @@ public class NIC: IntCodeVM.IInOut {
 				if (nicvals == (nicmem[0], nicmem[1]))
 				{
 					(nicmem[0], nicmem[1]).ToString().Dump("Part 2");
+					Environment.Exit(0);
 				}
 				else{
 					nicvals = (nicmem[0], nicmem[1]);
@@ -93,12 +95,16 @@ public class NIC: IntCodeVM.IInOut {
 		Outputs.Add(val);
 		if (Outputs.Count >= 3)
 		{
-			$"Sending ({Outputs[1]},{Outputs[2]}) to ::{Outputs[0]}".Dump();
+			//$"Sending ({Outputs[1]},{Outputs[2]}) to ::{Outputs[0]}".Dump();
 			if (Outputs[0] == 255)
 			{
 				nicmem[0] = Outputs[1];
 				nicmem[1] = Outputs[2];
-				Outputs[2].Dump("Part 1");
+				if (firstnic)
+				{
+					Outputs[2].Dump("Part 1");
+					firstnic = false;
+				}
 				// Environment.Exit(0);
 			}
 			else{
