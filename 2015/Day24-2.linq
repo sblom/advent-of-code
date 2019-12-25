@@ -7,7 +7,7 @@ var lines = await AoC.GetLinesWeb();
 
 var weights = lines.Reverse().Select(int.Parse);
 
-var third = weights.Sum() / 3;
+var quarter = weights.Sum() / 4;
 
 var ways = new Dictionary<int, List<IImmutableSet<int>>> { { 0, new List<IImmutableSet<int>> { ImmutableHashSet<int>.Empty } } };
 
@@ -18,7 +18,7 @@ foreach (var weight in weights)
 	{
 		var newweight = way.Key + weight;
 		
-		if (newweight > third) continue;
+		if (newweight > quarter) continue;
 		
 		if (!ways.ContainsKey(newweight))
 		{
@@ -41,37 +41,37 @@ foreach (var weight in weights)
 	}
 }
 
-var shortest = ways[third].ToList();
+//ways[quarter].Dump();
 
-var prevs = new HashSet<int> { 0 };
+var shortest = ways[quarter].ToList();
 
 var success = new List<IImmutableSet<int>>();
 
 foreach (var candidate in shortest)
 {
+	ways = new Dictionary<int, List<IImmutableSet<int>>> { { 0, new List<IImmutableSet<int>> { ImmutableHashSet<int>.Empty } } };
+	
 	foreach (var weight in weights.Where(x => !candidate.Contains(x)))
 	{
+		weight.Dump();
 		//weight.Dump();
-		foreach (var prev in prevs.ToList())
+		foreach (var prev in ways.ToDictionary(kv => kv.Key, kv => kv.Value.ToList()))
 		{
-			var newweight = prev + weight;
-
-			if (newweight == third)
+			var newweight = prev.Key + weight;
+			if (newweight > quarter) continue;
+			
+			if (!ways.ContainsKey(newweight))
 			{
-				//candidate.Dump();
-				// 778231 is too low.
-				// 118135586371‬ is wrong.
-				success.Add(candidate);
-				//candidate.Select(x => (long)x).Aggregate((a,b) => a * b).Dump("QE");
-				goto next_candidate;
+				ways[newweight] = new List<IImmutableSet<int>>();
 			}
-	
-			if (newweight > third) continue;
-	
-			prevs.Add(newweight);
+			ways[newweight].AddRange(prev.Value.Select(x => x.Add(weight)));
 		}
 	}
-	next_candidate:;
+
+	if ((from x in ways[quarter] from y in ways[quarter] where !x.Any(v => y.Contains(v)) select true).Any())
+	{
+		success.Add(candidate);
+	}
 }
 
 success.OrderBy(x => x.Select(x=>(long)x).Aggregate((a,b) => a * b)).First().Select(x => (long)x).Aggregate((a,b) => a * b).Dump();
