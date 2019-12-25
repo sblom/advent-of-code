@@ -53,7 +53,7 @@ foreach (var candidate in shortest)
 	
 	foreach (var weight in weights.Where(x => !candidate.Contains(x)))
 	{
-		weight.Dump();
+		//weight.Dump();
 		//weight.Dump();
 		foreach (var prev in ways.ToDictionary(kv => kv.Key, kv => kv.Value.ToList()))
 		{
@@ -71,6 +71,10 @@ foreach (var candidate in shortest)
 	if ((from x in ways[quarter] from y in ways[quarter] where !x.Any(v => y.Contains(v)) select true).Any())
 	{
 		success.Add(candidate);
+	}
+	else
+	{
+		candidate.Dump("Impossible");
 	}
 }
 
