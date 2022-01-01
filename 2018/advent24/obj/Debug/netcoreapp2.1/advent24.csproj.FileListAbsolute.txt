@@ -1,0 +1,11 @@
+/Users/sblomquist/Documents/LINQPad Queries/AoC/2018/advent24/obj/Debug/netcoreapp2.1/advent24.csprojAssemblyReference.cache
+/Users/sblomquist/Documents/LINQPad Queries/AoC/2018/advent24/obj/Debug/netcoreapp2.1/advent24.csproj.CoreCompileInputs.cache
+/Users/sblomquist/Documents/LINQPad Queries/AoC/2018/advent24/obj/Debug/netcoreapp2.1/advent24.AssemblyInfoInputs.cache
+/Users/sblomquist/Documents/LINQPad Queries/AoC/2018/advent24/obj/Debug/netcoreapp2.1/advent24.AssemblyInfo.cs
+/Users/sblomquist/Documents/LINQPad Queries/AoC/2018/advent24/bin/Debug/netcoreapp2.1/advent24.deps.json
+/Users/sblomquist/Documents/LINQPad Queries/AoC/2018/advent24/bin/Debug/netcoreapp2.1/advent24.runtimeconfig.json
+/Users/sblomquist/Documents/LINQPad Queries/AoC/2018/advent24/bin/Debug/netcoreapp2.1/advent24.runtimeconfig.dev.json
+/Users/sblomquist/Documents/LINQPad Queries/AoC/2018/advent24/bin/Debug/netcoreapp2.1/advent24.dll
+/Users/sblomquist/Documents/LINQPad Queries/AoC/2018/advent24/bin/Debug/netcoreapp2.1/advent24.pdb
+/Users/sblomquist/Documents/LINQPad Queries/AoC/2018/advent24/obj/Debug/netcoreapp2.1/advent24.dll
+/Users/sblomquist/Documents/LINQPad Queries/AoC/2018/advent24/obj/Debug/netcoreapp2.1/advent24.pdb
