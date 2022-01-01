@@ -25,10 +25,8 @@ var originalDecks = decks.ToArray();
 
 while (decks.All(deck => deck.Any()))
 {
-	int c1 = decks[0].Peek();
-	decks[0] = decks[0].Dequeue();
-	int c2 = decks[1].Peek();
-	decks[1] = decks[1].Dequeue();
+	decks[0] = decks[0].Dequeue(out var c1);
+	decks[1] = decks[1].Dequeue(out var c2);
 	
 	if (c1 > c2)
 	{
