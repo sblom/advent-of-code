@@ -14,6 +14,6 @@ let hex = new Regex(@"\\\\x..")
 let len (s:string) =
     s.Length - 2 - slash.Matches(s).Count - quote.Matches(s).Count - 3 * hex.Matches(s).Count
 
-"\\\"s\\\\df\\x34".Length |> Dump
+"\\\"s\\\\df\\x34".Length |> Dump |> ignore
 
-len "\"\\\"s\\\\df\\x34\"" |> Dump
+len "\"\\\"s\\\\df\\x34\"" |> Dump |> ignore
