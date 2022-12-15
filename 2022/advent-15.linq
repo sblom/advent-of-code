@@ -35,37 +35,38 @@ Sensor at x=14, y=3: closest beacon is at x=15, y=3
 Sensor at x=20, y=1: closest beacon is at x=15, y=3".GetLines().ToArray();
 #endif
 
+Dictionary<(int, int), int> counts = new();
+
+var observations = lines.Extract<(int sx, int sy, int bx, int by)>(@"Sensor at x=(-?\d+), y=(-?\d+): closest beacon is at x=(-?\d+), y=(-?\d+)").ToList();
+
 for (int i = 0; i < 4000000; i++)
 {
-    List<(int,int)> ranges = new();
-
-    foreach (var line in lines.Extract<(int sx, int sy, int bx, int by)>(@"Sensor at x=(-?\d+), y=(-?\d+): closest beacon is at x=(-?\d+), y=(-?\d+)"))
+    foreach (var line in observations)
     {
-        //if (line.by == i) lineBeacons.Add(line.bx);
         var dist = Math.Abs(line.sx - line.bx) + Math.Abs(line.sy - line.by);
-
         var ydist = Math.Abs(i - line.sy);
-
         if (ydist > dist) continue;
 
         var xdist = dist - ydist;
-
-        var x1 = line.sx - xdist;
-        var x2 = line.sx + xdist;
+        var x1 = line.sx - xdist - 1;
+        var x2 = line.sx + xdist + 1;
         
-        ranges.Add((x1,x2));
-    }
-    
-    var orderedRanges = ranges.OrderBy(x => x.Item1).ToList();
-    int max = 0;
-    for (int r = 0; r < orderedRanges.Count - 1; r++)
-    {
-        max = Math.Max(max, orderedRanges[r].Item2);
-        if (orderedRanges[r + 1].Item1 > max) (i,orderedRanges[r],orderedRanges[r + 1]).ToString().Dump();
-        if (max > 4000000) break;
+        if (!counts.ContainsKey((i,x1)))
+        {
+            counts[(i,x1)] = 0;
+        }
+        if (!counts.ContainsKey((i, x2)))
+        {
+            counts[(i, x2)] = 0;
+        }
+        
+        counts[(i,x1)]++;
+        counts[(i,x2)]++;
     }
     
     if (i % 10000 == 0) i.Dump();
 }
+
+counts.OrderByDescending(x => x.Value).Take(10).Dump();
 
 //points.Count.Dump("part 1");
