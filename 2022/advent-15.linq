@@ -37,19 +37,19 @@ Sensor at x=20, y=1: closest beacon is at x=15, y=3".GetLines().ToArray();
 
 Dictionary<(int, int), int> counts = new();
 
-var observations = lines.Extract<(int sx, int sy, int bx, int by)>(@"Sensor at x=(-?\d+), y=(-?\d+): closest beacon is at x=(-?\d+), y=(-?\d+)").ToList();
+var observations = lines.Extract<((int x, int y) s, (int x, int y) b)>(@"Sensor at x=((-?\d+), y=(-?\d+)): closest beacon is at x=((-?\d+), y=(-?\d+))").ToList();
 
 for (int i = 0; i < 4000000; i++)
 {
     foreach (var line in observations)
     {
-        var dist = Math.Abs(line.sx - line.bx) + Math.Abs(line.sy - line.by);
-        var ydist = Math.Abs(i - line.sy);
+        var dist = Math.Abs(line.s.x - line.b.x) + Math.Abs(line.s.y - line.b.y);
+        var ydist = Math.Abs(i - line.s.y);
         if (ydist > dist) continue;
 
         var xdist = dist - ydist;
-        var x1 = line.sx - xdist - 1;
-        var x2 = line.sx + xdist + 1;
+        var x1 = line.s.x - xdist - 1;
+        var x2 = line.s.x + xdist + 1;
         
         if (!counts.ContainsKey((i,x1)))
         {
