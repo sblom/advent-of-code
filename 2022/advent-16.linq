@@ -14,7 +14,7 @@
 #load "..\Lib\Utils"
 #load "..\Lib\BFS"
 
-//#define TEST
+#define TEST
 
 #if !TEST
 var lines = (await AoC.GetLinesWeb()).ToArray();
@@ -33,6 +33,50 @@ Valve JJ has flow rate=21; tunnel leads to valve II".GetLines().ToArray();
 
 var valves = lines.Extract<(string valve, int rate, List<string> tunnels)>(@"Valve (\w+) has flow rate=(\d+); tunnels? leads? to valves? (?:(\w+)(?:, )?)+").ToDictionary(x => x.valve, x => (x.rate, x.tunnels)) as IReadOnlyDictionary<string, (int rate, List<string> tunnels)>;
 
+Dictionary<string, Dictionary<string, int>> adjacency = new();
+
+foreach (var loc in valves.Keys)
+{
+    var dists = valves.Keys.Where(k => k != loc).ToDictionary(x => x, x => -1);
+    int dist = 0;
+    foreach (var next in valves[loc].tunnels)
+    {
+        dists[next] = dist + 1;
+    }
+    while (dists.Any(x => x.Value == -1))
+    {
+        dist++;
+        foreach (var next in dists.Where(x => x.Value == dist).SelectMany(x => valves[x.Key].tunnels))
+        {
+            if (next == loc) continue;
+            if (dists[next] == -1)
+                dists[next] = dist + 1;
+        }
+    }
+    adjacency[loc] = dists;
+}
+
+adjacency.Dump();
+
+var closed = valves.Where(x => x.Value.rate > 0).Select(x => x.Key).ToImmutableHashSet();
+
+var bfs = new BFS<(int score, string loc, ImmutableHashSet<string> closed, int countdown)>(
+    (0, "AA", closed, 30),
+    neighbors,
+    (state) => (state.countdown == 0),
+    (state) => (state.countdown == 0)
+);
+
+IEnumerable<(int score, string loc, ImmutableHashSet<string> closed, int countdown)> neighbors((int score, string loc, ImmutableHashSet<string> closed, int countdown) state)
+{
+    var adjacent = adjacency[state.loc].Where(x => state.closed.Contains(x.Key) && x.Value <= state.countdown - 1);
+    if (!adjacent.Any()) yield return (state.score, state.loc, state.closed, 0);
+    else foreach (var result in adjacent.Select(x => (state.score + (state.countdown - adjacency[state.loc][x.Key] - 1) * valves[x.Key].rate, x.Key, closed.Remove(x.Key), state.countdown - adjacency[state.loc][x.Key] - 1))) yield return result;
+}
+
+bfs.Search().Max(x => x.score).Dump();
+
+#if OLD_PART_1
 var bfs = new BFS<(int score, string loc, ImmutableHashSet<string> open, int countdown)>(
     (0, "AA", ImmutableHashSet<string>.Empty, 30),
     neighbors,
@@ -70,3 +114,4 @@ int Score((int score, string loc, ImmutableHashSet<string> open, int countdown) 
 }
 
 bfs.Search().Aggregate(0, (max, state) => { if (state.score > max) { state.score.Dump(); return state.score; } else return max;}).Dump();
+#endif
