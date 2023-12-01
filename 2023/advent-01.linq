@@ -29,28 +29,62 @@ int t = 0;
 foreach (var line in lines)
 {
     var nums = line.Where(ch => char.IsNumber(ch));
-    var d1 = string.Join("", nums.First(),nums.Last());
-    t += int.Parse(d1);
+    t += (nums.First() - '0') * 10 + (nums.Last() - '0');
 }
-
-t.Dump();
+t.Dump("Part 1");
 
 t = 0;
 
 foreach (var line in lines)
 {
-    var tmp = line;
-    
-    string[] numerals = ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine"];
-    string[] values = ["o1e","t2o","t3e","f4r","f5e","s6x","s7n","e8t","n9e"];
-    
-    for (int i = 0; i < numerals.Length; i++)
-    {
-        tmp = tmp.Replace(numerals[i],values[i]);
-    }
-    
-    var nums = tmp.Where(ch => char.IsNumber(ch));
-    var d1 = string.Join("", nums.First(), nums.Last());
-    t += int.Parse(d1);
+    t += GetDigits(line);
 }
-t.Dump();
+t.Dump("Part 2");
+
+int GetDigits(string str)
+{
+    int first = -1, last = -1;
+    
+    var span = str.AsSpan();
+    int i = 0;
+    
+    for (i = 0; i < str.Length; i++)
+    {
+        var digit = GetDigit(span[i..]);
+        if (digit is not null)
+        {
+            first = last = digit.Value;
+            i++;
+            break;
+        }
+    }
+
+    for (; i < str.Length; i++)
+    {
+        var digit = GetDigit(span[i..]);
+        if (digit is not null)
+        {
+            last = digit.Value;
+        }
+    }
+
+
+    return first * 10 + last;
+}
+
+int? GetDigit(ReadOnlySpan<char> span)
+{
+    return span switch {
+        [var ch,..] when ch is >= '0' and <= '9' => ch - '0',
+        ['o', 'n', 'e', ..] => 1,
+        ['t', 'w', 'o', ..] => 2,
+        ['t', 'h', 'r', 'e', 'e', ..] => 3,
+        ['f', 'o', 'u', 'r', ..] => 4,
+        ['f', 'i', 'v', 'e', ..] => 5,
+        ['s', 'i', 'x', ..] => 6,
+        ['s', 'e', 'v', 'e', 'n', ..] => 7,
+        ['e', 'i', 'g', 'h', 't', ..] => 8,
+        ['n', 'i', 'n', 'e', ..] => 9,
+        _ => null        
+    };
+}
