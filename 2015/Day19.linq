@@ -7,7 +7,7 @@
 var lines = await AoC.GetLinesWeb();
 
 var molecule = lines.Last();
-var replacements = lines.Take(lines.Count() - 2).Select(x => x.Split(" => ")).Select(x => (from: x[0], to: x[1])).ToList().Dump();
+var replacements = lines.Take(lines.Count() - 2).Select(x => x.Split(" => ")).Select(x => (from: x[0], to: x[1])).ToList();
 
 var set = new HashSet<string>();
 

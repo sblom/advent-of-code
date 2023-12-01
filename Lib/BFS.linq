@@ -82,7 +82,7 @@ public class BFS<TState>
 		_isTerminal = isTerminal;
 		_isInteresting = isInteresting;
 		_frontier = new OrderedBag<TState>(Comparer<TState>.Create((a,b) => _weight(a) - _weight(b)));
-		_frontier.Add(init);		
+		_frontier.Add(init);
 		_visited = new HashSet<object>();
 	}
 
