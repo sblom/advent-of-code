@@ -2,6 +2,8 @@
   <Namespace>System.Collections.Immutable</Namespace>
 </Query>
 
+#load "..\Lib\Utils"
+
 var lines = await AoC.GetLinesWeb();
 
 var molecule = lines.Last();
