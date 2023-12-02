@@ -22,31 +22,20 @@ Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red
 Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green".GetLines();
 #endif
 
-List<(int n, List<List<(int,string)>>)> things = new();
-
-foreach (var game in lines)
-{
-    var gamesplit = game.Split(": ");
-    var num = int.Parse(gamesplit[0].Split(" ")[1]);
-
-    var sets = gamesplit[1].Split("; ");
-    var setlist = sets.Select(x => x.Split(", ").Select(y => y.Split(" ")).Select(z => (int.Parse(z[0]),z[1])).ToList()).ToList();
-    
-    things.Add((num, setlist));
-}
+var games = lines.Extract<(int gamenum, List<List<(int count, string color)>> draws)>(@"Game (?:(\d+): (((\d+) (\w+),? ?)+;? ?)+)");
 
 int possible = 0;
 
-foreach (var thing in things)
+foreach (var game in games)
 {
-    foreach (var set in thing.Item2)
+    foreach (var draw in game.draws)
     {
-        foreach (var game in set)
+        foreach (var color in draw)
         {
-            if (game.Item1 > game.Item2 switch {"red" => 12, "green" => 13, "blue" => 14}) goto impossible;
+            if (color.count > color.color switch {"red" => 12, "green" => 13, "blue" => 14}) goto impossible;
         }
     }
-    possible += thing.n;
+    possible += game.gamenum;
 impossible:;
 }
 
@@ -54,20 +43,20 @@ possible.Dump("Part 1");
 
 long total = 0;
 
-foreach (var thing in things)
+foreach (var game in games)
 {
-    Dictionary<string, int> colors = new Dictionary<string, int>
+    var colors = new Dictionary<string, int>
     {
         ["red"] = 0,
         ["green"] = 0,
         ["blue"] = 0
     };
 
-    foreach (var set in thing.Item2)
+    foreach (var draw in game.draws)
     {
-        foreach (var game in set)
+        foreach (var color in draw)
         {
-            colors[game.Item2] = Math.Max(colors[game.Item2], game.Item1);
+            colors[color.color] = Math.Max(colors[color.color], color.count);
         }
     }
     int power = colors.Select(x => x.Value).Aggregate((x,y) => x * y);
