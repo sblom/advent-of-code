@@ -22,7 +22,7 @@ Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red
 Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green".GetLines();
 #endif
 
-var games = lines.Extract<(int gamenum, List<List<(int count, string color)>> draws)>(@"Game (?:(\d+): (((\d+) (\w+),? ?)+;? ?)+)");
+var games = lines.Extract<game>(@"Game (\d+): (((\d+) (\w+),? ?)+;? ?)+");
 
 int possible = 0;
 
@@ -30,12 +30,12 @@ foreach (var game in games)
 {
     foreach (var draw in game.draws)
     {
-        foreach (var color in draw)
+        foreach (var color in draw.colors)
         {
             if (color.count > color.color switch {"red" => 12, "green" => 13, "blue" => 14}) goto impossible;
         }
     }
-    possible += game.gamenum;
+    possible += game.id;
 impossible:;
 }
 
@@ -54,13 +54,16 @@ foreach (var game in games)
 
     foreach (var draw in game.draws)
     {
-        foreach (var color in draw)
+        foreach (var color in draw.colors)
         {
             colors[color.color] = Math.Max(colors[color.color], color.count);
         }
     }
-    int power = colors.Select(x => x.Value).Aggregate((x,y) => x * y);
+    int power = colors.Select(x => x.Value).Aggregate((x, y) => x * y);
     total += power;
 }
 
 total.Dump("Part 2");
+
+record game(int id, List<draw> draws);
+record draw(List<(int count, string color)> colors);
