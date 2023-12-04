@@ -39,17 +39,12 @@ List<(HashSet<int> winners, HashSet<int> mine)> cards = new();
 cards.Add((new HashSet<int>(), new HashSet<int>()));
 Dictionary<int,long> memoize = new();
 
-foreach (var line in lines)
+var cardlists = lines.Extract<(int num, List<int> winners, List<int> mine)>(@"Card +(\d+): +(?:(\d+) *)+\| +(?:(\d+) *)+").Dump();
+
+foreach (var card in cardlists)
 {
-    var card = line.Split(": ");
-    var nums = card[1].Split(" | ");
-    var winners = nums[0].Split(" ").Where(n => !string.IsNullOrEmpty(n)).Select(n => int.Parse(n)).ToHashSet();
-    var mine = nums[1].Split(" ").Where(n => !string.IsNullOrEmpty(n)).Select(n => int.Parse(n)).ToHashSet();
-    
-    cards.Add((winners,mine));
-    
-    var N = mine.Where(n => winners.Contains(n)).Count();
-    
+    cards.Add((card.winners.ToHashSet(),card.mine.ToHashSet())); 
+    var N = card.mine.Where(n => card.winners.Contains(n)).Count();    
     if (N > 0) tot += (1L << (N - 1));
 }
 
