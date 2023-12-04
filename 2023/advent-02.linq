@@ -7,10 +7,13 @@
   <Namespace>System.Collections.Immutable</Namespace>
 </Query>
 
+#region Preamble
+
 #load "..\Lib\Utils"
 #load "..\Lib\BFS"
 
 //#define TEST
+#define CHECKED
 
 #if !TEST
 var lines = await AoC.GetLinesWeb();
@@ -21,6 +24,12 @@ Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red
 Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red
 Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green".GetLines();
 #endif
+
+#if CHECKED
+checked{
+#endif
+
+#endregion
 
 var games = lines.Extract<game>(@"Game (\d+): (((\d+) (\w+),? ?)+;? ?)+");
 
@@ -67,3 +76,7 @@ total.Dump("Part 2");
 
 record game(int id, List<draw> draws);
 record draw(List<(int count, string color)> colors);
+
+#if CHECKED
+}
+#endif
