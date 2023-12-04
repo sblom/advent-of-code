@@ -39,7 +39,7 @@ List<(HashSet<int> winners, HashSet<int> mine)> cards = new();
 cards.Add((new HashSet<int>(), new HashSet<int>()));
 Dictionary<int,long> memoize = new();
 
-var cardlists = lines.Extract<(int num, List<int> winners, List<int> mine)>(@"Card +(\d+): +(?:(\d+) *)+\| +(?:(\d+) *)+").Dump();
+var cardlists = lines.Extract<(int num, List<int> winners, List<int> mine)>(@"Card +(\d+): +(?:(\d+) *)+\| +(?:(\d+) *)+");
 
 foreach (var card in cardlists)
 {
@@ -50,20 +50,12 @@ foreach (var card in cardlists)
 
 tot.Dump("Part 1");
 
-
-int NumDraws(int n)
-{
-    if (n > 0) return (1 << (n - 1));
-    else return 0;
-}
-
 long GetCards(int cardno)
 {
     if (memoize.ContainsKey(cardno)) return memoize[cardno];
     
-    var result = 1 + Enumerable.Range(cardno + 1, cards[cardno].mine.Where(n => cards[cardno].winners.Contains(n)).Count()).Select(x => GetCards(x)).Sum();
+    var result = 1 + Enumerable.Range(cardno + 1, cards[cardno].mine.Where(n => cards[cardno].winners.Contains(n)).Count()).Sum(x => GetCards(x));
     memoize[cardno] = result;
-    //(cardno,result).Dump();
     return result;
 }
 
