@@ -54,7 +54,7 @@ long GetCards(int cardno)
 {
     if (memoize.ContainsKey(cardno)) return memoize[cardno];
     
-    var result = 1 + Enumerable.Range(cardno + 1, cards[cardno].mine.Where(n => cards[cardno].winners.Contains(n)).Count()).Sum(x => GetCards(x));
+    var result = 1L + Enumerable.Range(cardno + 1, cards[cardno].mine.Where(n => cards[cardno].winners.Contains(n)).Count()).Select(x => GetCards(x)).Sum();
     memoize[cardno] = result;
     return result;
 }
