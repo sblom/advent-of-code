@@ -63,10 +63,10 @@ List<List<(long to, long from, long len)>> maps = new();
 
 var seeds = lines.First().Split(" ")[1..].Select(long.Parse).ToArray();
 
-List<(long from, long len)> ranges = new();
+List<(long from, long to, long len)> ranges = new();
 for (int i = 0; i < seeds.Length / 2; i++)
 {
-    ranges.Add((seeds[i * 2], seeds[i * 2 + 1]));
+    ranges.Add((seeds[i * 2], seeds[i * 2], seeds[i * 2 + 1]));
 }
 
 $"{ranges.Select(x => x.len).Sum():0,000}".DumpTrace("Brute force total");
@@ -96,13 +96,13 @@ seeds.Min().Dump("Part 1");
 
 foreach (var map in maps)
 {
-    var nextranges = new List<(long,long)>();
+    var nextranges = new List<(long from,long to,long len)>();
     
     int i = 0;
     
     map[i].DumpTrace("map");
     
-    foreach (var range in ranges.OrderBy(x => x.from))
+    foreach (var range in ranges.OrderBy(x => x.to))
     {
         var rem = range;
         
@@ -110,33 +110,33 @@ foreach (var map in maps)
         {
             rem.DumpTrace("rem");
             // We're entirely past the current map
-            if (rem.from >= map[i].from + map[i].len)
+            if (rem.to >= map[i].from + map[i].len)
             {
                 i++;
                 if (i < map.Count) map[i].DumpTrace("map");
                 continue;
             }
             // We're entirely before the current map
-            else if (rem.from + rem.len - 1 < map[i].from)
+            else if (rem.to + rem.len - 1 < map[i].from)
             {
-                nextranges.Add((rem.from, rem.len));
+                nextranges.Add(rem);
                 goto next_range;
             }
             // We're overlapping the current map
             else
             {
                 // The part before the map
-                if (rem.from < map[i].from)
+                if (rem.to < map[i].from)
                 {
-                    nextranges.Add((rem.from, map[i].from - rem.from));
-                    rem = (map[i].from, rem.len - (map[i].from - rem.from));
+                    nextranges.Add((rem.from, rem.to, map[i].from - rem.to));
+                    rem = (rem.from + map[i].from - rem.to, map[i].from, rem.len - (map[i].from - rem.to));
                 }
                 // The part inside the map
-                nextranges.Add((map[i].to + rem.from - map[i].from, Math.Min(rem.from + rem.len, map[i].from + map[i].len) - rem.from));
+                nextranges.Add((rem.from, map[i].to + rem.to - map[i].from, Math.Min(rem.to + rem.len, map[i].from + map[i].len) - rem.to));
                 // If we continue past the map
-                if (rem.from + rem.len - 1 > map[i].from + map[i].len - 1)
+                if (rem.to + rem.len - 1 > map[i].from + map[i].len - 1)
                 {
-                    rem = (map[i].from + map[i].len, rem.from + rem.len - map[i].from - map[i].len);
+                    rem = (rem.from + map[i].from + map[i].len - rem.to, map[i].from + map[i].len, rem.to + rem.len - map[i].from - map[i].len);
                     continue;
                 }
                 else
@@ -148,13 +148,12 @@ foreach (var map in maps)
         
         nextranges.Add(rem);
         
-next_range:;        
+next_range:;
     }
     ranges = nextranges;
-    nextranges.DumpTrace();
 }
 
-ranges.OrderBy(x => x.from).First().from.Dump("Part 2");
+ranges.OrderBy(x => x.to).First().to.Dump("Part 2");
 
 #if CHECKED
 }
