@@ -43,7 +43,7 @@ var cardlists = lines.Extract<(int num, List<int> winners, List<int> mine)>(@"Ca
 
 foreach (var card in cardlists)
 {
-    cards.Add((card.winners.ToHashSet(),card.mine.ToHashSet())); 
+    cards.Add((card.winners.ToHashSet(),card.mine.ToHashSet()));
     var N = card.mine.Where(n => card.winners.Contains(n)).Count();    
     if (N > 0) tot += (1L << (N - 1));
 }

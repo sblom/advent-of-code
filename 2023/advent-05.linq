@@ -7,13 +7,14 @@
   <Namespace>System.Collections.Immutable</Namespace>
 </Query>
 
+//#define TEST
+//#define CHECKED
+#define FULLRANGE
+
 #region Preamble
 
 #load "..\Lib\Utils"
 #load "..\Lib\BFS"
-
-//#define TEST
-//#define CHECKED
 
 #if !TEST
 var lines = await AoC.GetLinesWeb();
@@ -69,7 +70,10 @@ for (int i = 0; i < seeds.Length / 2; i++)
     ranges.Add((seeds[i * 2], seeds[i * 2], seeds[i * 2 + 1]));
 }
 
-$"{ranges.Select(x => x.len).Sum():0,000}".DumpTrace("Brute force total");
+#if FULLRANGE
+ranges.Clear();
+ranges.Add((0,0,uint.MaxValue));
+#endif
 
 List<(long to, long from, long len)> section = null;
 
@@ -152,6 +156,10 @@ next_range:;
     }
     ranges = nextranges;
 }
+
+#if FULLRANGE
+ranges.Select(x => new {x.from, x.to, x.len}).OrderBy(x => x.to).Dump("Ranges",toDataGrid: true);
+#endif
 
 ranges.OrderBy(x => x.to).First().to.Dump("Part 2");
 
