@@ -32,7 +32,10 @@ checked{
 #endregion
 
 var instructions = lines.First();
-var map = lines.Skip(2).Extract<(string node, string left, string right)>(@"(\w{3}) = \((\w{3}), (\w{3})\)").Dump();
+
+instructions.Length.Dump();
+
+var map = lines.Skip(2).Extract<(string node, string left, string right)>(@"(...) = \((...), (...)\)");
 
 var mapdict = map.ToDictionary(x => x.node, x => (x.left, x.right));
 
@@ -49,11 +52,11 @@ for (i = 0; ; i++)
     };
 }
 
-i.Dump();
+i.Dump("Part 1");
 
 var lengths = new List<long>();
 
-foreach (var start in mapdict.Keys.Where(x => x[2] == 'A').Dump())
+foreach (var start in mapdict.Keys.Where(x => x[2] == 'A'))
 {
     loc = start;
     i = 0;
@@ -71,11 +74,9 @@ foreach (var start in mapdict.Keys.Where(x => x[2] == 'A').Dump())
     lengths.Add(i);
 }
 
-lengths.Dump();
-
 // Find the LCM of all of the numbers in lengths
 var lcm = lengths.Aggregate((x, y) => (x * y) / Gcd(x, y));
-lcm.Dump();
+lcm.Dump("Part 2");
 
 // Implement the Gcd function
 static long Gcd(long a, long b)
