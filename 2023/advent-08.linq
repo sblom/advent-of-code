@@ -33,8 +33,6 @@ checked{
 
 var instructions = lines.First();
 
-instructions.Length.Dump();
-
 var map = lines.Skip(2).Extract<(string node, string left, string right)>(@"(...) = \((...), (...)\)");
 
 var mapdict = map.ToDictionary(x => x.node, x => (x.left, x.right));
