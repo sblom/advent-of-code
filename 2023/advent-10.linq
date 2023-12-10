@@ -69,7 +69,9 @@ var (dx, dy) = (-1,0);
 var (dx, dy) = (0,-1);
 #endif
 
-HashSet<(int,int)> path = new();
+
+List<(int x,int y)> path = new();
+HashSet<(int x,int y)> pathhash = new();
 
 do {
     path.Add((x, y));
@@ -81,20 +83,22 @@ do {
 
 (path.Count()/2).Dump("Part 1");
 
+pathhash = path.ToHashSet();
+
 int inside = 0;
 
 for (int i = 0; i < gr.Length; i++)
 {
     for (int j = 0; j < gr[0].Length; j++)
     {
-        if (!path.Contains((j,i)))
+        if (!pathhash.Contains((j,i)))
         {
             int yi = i;
             int crossings = 0;
             while (yi > 0)
             {
                 yi--;
-                if (path.Contains((j,yi)))
+                if (pathhash.Contains((j,yi)))
                 {                    
                     crossings += grid[yi,j] switch
                     {
@@ -112,6 +116,14 @@ for (int i = 0; i < gr.Length; i++)
 }
 
 inside.Dump("Part 2");
+
+int A2 = 0;
+for (int i = 0; i < pathhash.Count; i++)
+{
+    A2 += path[i].x * path[(i+1) % pathhash.Count].y - path[i].y * path[(i+1) % pathhash.Count].x;
+}
+
+(A2 / 2 - path.Count / 2 + 1).Dump("Pick's Theorem + Shoelace Formula");
 
 (int, int)[] GetDirs(char ch)
 {
