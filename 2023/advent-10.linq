@@ -118,9 +118,9 @@ for (int i = 0; i < gr.Length; i++)
 inside.Dump("Part 2");
 
 int A2 = 0;
-for (int i = 0; i < pathhash.Count; i++)
+for (int i = 0; i < path.Count; i++)
 {
-    A2 += path[i].x * path[(i+1) % pathhash.Count].y - path[i].y * path[(i+1) % pathhash.Count].x;
+    A2 += path[i].x * path[(i+1) % path.Count].y - path[i].y * path[(i+1) % path.Count].x;
 }
 
 (A2 / 2 - path.Count / 2 + 1).Dump("Pick's Theorem + Shoelace Formula");
