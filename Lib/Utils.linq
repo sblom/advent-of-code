@@ -5,6 +5,8 @@
 
 public static partial class AoC
 {
+    public static DumpContainer[] _outputs = new DumpContainer[2];
+    
     public static IEnumerable<string> GetLines(this string lines)
     {
         return lines.Trim().Split("\n").Select(line => line.Trim());
@@ -50,4 +52,32 @@ public static partial class AoC
             return await resp.Content.ReadAsStringAsync();
         }
     }
+    
+    public static T Dump1<T>(this T output)
+    {        
+        if (_outputs[0] == null)
+        {
+            _outputs[0] = new DumpContainer(output).Dump();
+        }
+        else
+        {
+            _outputs[0].Content = output;
+        }
+        
+        return output;
+    }
+    public static T Dump2<T>(this T output)
+    {
+        if (_outputs[1] == null)
+        {
+            _outputs[1] = new DumpContainer(output).Dump();
+        }
+        else
+        {
+            _outputs[1].Content = output;
+        }
+        
+        return output;
+    }
+
 }

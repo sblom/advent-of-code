@@ -37,6 +37,9 @@ var lines = """
 """.GetLines();
 #endif
 
+AoC._outputs = new DumpContainer[] { new(), new() };
+Util.HorizontalRun("Part 1,Part 2", AoC._outputs).Dump();
+
 #if CHECKED
 checked{
 #endif
@@ -58,7 +61,11 @@ foreach (var grid in grids)
         {
             for (int j = 0; j < grid.Length; j++)
             {
-                if (grid[j][i - k] != grid[j][i + k + 1]) smudge++;
+                if (grid[j][i - k] != grid[j][i + k + 1])
+                {
+                    smudge++;
+                    if (smudge > 1) goto no_mirror;
+                }
             }
         }
         
@@ -75,7 +82,11 @@ foreach (var grid in grids)
         {
             for (int j = 0; j < grid[0].Length; j++)
             {
-                if (grid[i - k][j] != grid[i + k + 1][j]) smudge++;
+                if (grid[i - k][j] != grid[i + k + 1][j])
+                {
+                    smudge++;
+                    if (smudge > 1) goto no_mirror;
+                }
             }
         }
 
@@ -86,8 +97,8 @@ foreach (var grid in grids)
     next_pattern:;
 }
 
-total.Dump();
-total2.Dump();
+total.Dump1();
+total2.Dump2();
 
 #if CHECKED
 }

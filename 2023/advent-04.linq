@@ -1,6 +1,6 @@
 <Query Kind="Statements">
   <NuGetReference>LinqToRanges</NuGetReference>
-  <NuGetReference>RegExtract</NuGetReference>
+  <NuGetReference Prerelease="true">RegExtract</NuGetReference>
   <Namespace>LinqToRanges</Namespace>
   <Namespace>RegExtract</Namespace>
   <Namespace>static System.Math</Namespace>
@@ -39,7 +39,7 @@ List<(HashSet<int> winners, HashSet<int> mine)> cards = new();
 cards.Add((new HashSet<int>(), new HashSet<int>()));
 Dictionary<int,long> memoize = new();
 
-var cardlists = lines.Extract<(int num, List<int> winners, List<int> mine)>(@"Card +(\d+): +(?:(\d+) *)+\| +(?:(\d+) *)+");
+var cardlists = lines.Extract<(int num, List<int> winners, List<int> mine)>(@"Card +(\d+): +((\d+) *)+\| +((\d+) *)+");
 
 foreach (var card in cardlists)
 {
