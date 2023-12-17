@@ -1,6 +1,6 @@
 <Query Kind="Statements">
   <NuGetReference>LinqToRanges</NuGetReference>
-  <NuGetReference>RegExtract</NuGetReference>
+  <NuGetReference Prerelease="true">RegExtract</NuGetReference>
   <Namespace>LinqToRanges</Namespace>
   <Namespace>RegExtract</Namespace>
   <Namespace>static System.Math</Namespace>

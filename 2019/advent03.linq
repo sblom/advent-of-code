@@ -1,7 +1,6 @@
 <Query Kind="Program">
   <Connection>
     <ID>b7440089-72f5-46f7-8c5f-8419bdb81277</ID>
-    <Persist>true</Persist>
     <Driver Assembly="IQDriver" PublicKeyToken="5b59726538a49684">IQDriver.IQDriver</Driver>
     <Provider>System.Data.SQLite</Provider>
     <CustomCxString>Data Source=C:\Users\sblom\AppData\Local\Packages\Fitbit.Fitbit_6mqt6hf9g46tw\LocalState\fitbit.232TPT.db;FailIfMissing=True</CustomCxString>
@@ -17,6 +16,8 @@
   <Namespace>BenchmarkDotNet.Attributes</Namespace>
   <Namespace>BenchmarkDotNet.Running</Namespace>
 </Query>
+
+#load "..\lib\Utils"
 
 (int Δx, int Δy) ΔxΔy(char c) => c switch
 {

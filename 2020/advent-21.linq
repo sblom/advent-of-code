@@ -1,6 +1,6 @@
 <Query Kind="Statements">
   <NuGetReference>LinqToRanges</NuGetReference>
-  <NuGetReference>RegExtract</NuGetReference>
+  <NuGetReference Prerelease="true">RegExtract</NuGetReference>
   <Namespace>LinqToRanges</Namespace>
   <Namespace>RegExtract</Namespace>
   <Namespace>static System.Math</Namespace>
@@ -20,7 +20,7 @@ var lines = await AoC.GetLinesWeb();
 var lines = @"".GetLines();
 #endif
 
-var items = lines.Extract<(List<string> ingredients,List<string> allergens)>(@"(?:(\w+) )+\(contains (?:(\w+)(?:, |\)))+").Select(item => (ingredients: item.ingredients.ToHashSet(), allergens: item.allergens.ToHashSet())).ToArray();
+var items = lines.Extract<(List<string> ingredients,List<string> allergens)>(@"((\w+) )+\(contains ((\w+)(?:, |\)))+").Select(item => (ingredients: item.ingredients.ToHashSet(), allergens: item.allergens.ToHashSet())).ToArray();
 var allergens = items.SelectMany(x => x.allergens).Distinct();
 var ingredients = items.SelectMany(x => x.ingredients).Distinct();
 

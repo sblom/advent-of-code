@@ -1,7 +1,7 @@
 <Query Kind="Statements">
   <NuGetReference>LinqToRanges</NuGetReference>
   <NuGetReference>Newtonsoft.Json</NuGetReference>
-  <NuGetReference>RegExtract</NuGetReference>
+  <NuGetReference  Prerelease="true">RegExtract</NuGetReference>
   <Namespace>LinqToRanges</Namespace>
   <Namespace>Newtonsoft.Json.Linq</Namespace>
   <Namespace>RegExtract</Namespace>

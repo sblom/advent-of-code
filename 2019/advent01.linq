@@ -7,6 +7,8 @@
 
 #LINQPad optimize+
 
+#load "..\lib\Utils"
+
 public class AoC2019Day1
 {
 	IEnumerable<string> lines;

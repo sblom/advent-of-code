@@ -1,7 +1,7 @@
 <Query Kind="Statements">
   <NuGetReference>LinqToRanges</NuGetReference>
   <NuGetReference>Newtonsoft.Json</NuGetReference>
-  <NuGetReference>RegExtract</NuGetReference>
+  <NuGetReference Prerelease="true">RegExtract</NuGetReference>
   <Namespace>LinqToRanges</Namespace>
   <Namespace>Newtonsoft.Json.Linq</Namespace>
   <Namespace>RegExtract</Namespace>
@@ -24,7 +24,7 @@ var lines = @"Blueprint 1: Each ore robot costs 4 ore. Each clay robot costs 2 o
 Blueprint 2: Each ore robot costs 2 ore. Each clay robot costs 3 ore. Each obsidian robot costs 3 ore and 8 clay. Each geode robot costs 3 ore and 12 obsidian.".GetLines().ToArray();
 #endif
 
-var blueprints = lines.Extract<(int id, int oreCost, int clayCost, (int ore, int clay) obsidianCost, (int ore, int obsidian) geodeCost)>(@"Blueprint (\d+): Each ore robot costs (\d+) ore. Each clay robot costs (\d+) ore. Each obsidian robot costs ((\d+) ore and (\d+) clay). Each geode robot costs ((\d+) ore and (\d+) obsidian).")
+var blueprints = lines.Extract<(int id, int oreCost, int clayCost, (int ore, int clay) obsidianCost, (int ore, int obsidian) geodeCost)>(@"Blueprint (\d+): Each ore robot costs (\d+) ore. Each clay robot costs (\d+) ore. Each obsidian robot costs ((\d+) ore and (\d+) clay). Each geode robot costs ((\d+) ore and (\d+) obsidian).").Dump()
 #if PART2
 .Take(3)
 #endif

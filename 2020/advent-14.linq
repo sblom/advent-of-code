@@ -1,8 +1,8 @@
 <Query Kind="Statements">
   <NuGetReference>LinqToRanges</NuGetReference>
-  <NuGetReference>RegExtract</NuGetReference>
+  <NuGetReference  Prerelease="true">RegExtract</NuGetReference>
   <Namespace>LinqToRanges</Namespace>
-  <Namespace>RegExtract</Namespace>
+  <Namespace Prerelease="true">RegExtract</Namespace>
   <Namespace>System.Collections.Immutable</Namespace>
 </Query>
 

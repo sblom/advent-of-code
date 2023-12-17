@@ -1,6 +1,6 @@
 <Query Kind="Statements">
   <NuGetReference>LinqToRanges</NuGetReference>
-  <NuGetReference>RegExtract</NuGetReference>
+  <NuGetReference Prerelease="true">RegExtract</NuGetReference>
   <Namespace>LinqToRanges</Namespace>
   <Namespace>RegExtract</Namespace>
   <Namespace>static System.Math</Namespace>
@@ -32,7 +32,7 @@ checked{
 
 #endregion
 
-var records = lines.Extract<(string, List<int>)>(@"([.?#]+) (?:(\d+),?)+").Select(x => (x.Item1.ToCharArray(), x.Item2.ToArray()));
+var records = lines.Extract<(string, List<int>)>(@"([.?#]+) ((\d+),?)+").Select(x => (x.Item1.ToCharArray(), x.Item2.ToArray()));
 
 //int total = 0;
 //

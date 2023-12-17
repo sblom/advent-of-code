@@ -1,6 +1,6 @@
 <Query Kind="Statements">
   <NuGetReference>LinqToRanges</NuGetReference>
-  <NuGetReference>RegExtract</NuGetReference>
+  <NuGetReference Prerelease="true">RegExtract</NuGetReference>
   <Namespace>LinqToRanges</Namespace>
   <Namespace>RegExtract</Namespace>
   <Namespace>static System.Math</Namespace>
@@ -24,7 +24,7 @@ var blackTiles = new HashSet<(int x, int y)>();
 
 foreach (var line in lines)
 {
-	var coord = line.Extract<List<string>>(@"((?:w|e)|(?:n|s)(?:w|e))+").Aggregate((x: 0, y: 0), (loc, dir) =>
+	var coord = line.Extract<List<string>>(@"([ns]?[we])+").Aggregate((x: 0, y: 0), (loc, dir) =>
 	{
 		var (dx, dy) = dir switch
 		{

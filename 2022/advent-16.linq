@@ -1,7 +1,7 @@
 <Query Kind="Statements">
   <NuGetReference>LinqToRanges</NuGetReference>
   <NuGetReference>Newtonsoft.Json</NuGetReference>
-  <NuGetReference>RegExtract</NuGetReference>
+  <NuGetReference Prerelease="true">RegExtract</NuGetReference>
   <Namespace>LinqToRanges</Namespace>
   <Namespace>Newtonsoft.Json.Linq</Namespace>
   <Namespace>RegExtract</Namespace>
@@ -31,7 +31,7 @@ Valve II has flow rate=0; tunnels lead to valves AA, JJ
 Valve JJ has flow rate=21; tunnel leads to valve II".GetLines().ToArray();
 #endif
 
-var valves = lines.Extract<(string valve, int rate, List<string> tunnels)>(@"Valve (\w+) has flow rate=(\d+); tunnels? leads? to valves? (?:(\w+)(?:, )?)+").ToDictionary(x => x.valve, x => (x.rate, x.tunnels)) as IReadOnlyDictionary<string, (int rate, List<string> tunnels)>;
+var valves = lines.Extract<(string valve, int rate, List<string> tunnels)>(@"Valve (\w+) has flow rate=(\d+); tunnels? leads? to valves? ((\w+)(?:, )?)+").ToDictionary(x => x.valve, x => (x.rate, x.tunnels)) as IReadOnlyDictionary<string, (int rate, List<string> tunnels)>;
 
 Dictionary<string, Dictionary<string, int>> adjacency = new();
 

@@ -1,5 +1,5 @@
 <Query Kind="Statements">
-  <NuGetReference>RegExtract</NuGetReference>
+  <NuGetReference Prerelease="true">RegExtract</NuGetReference>
   <Namespace>RegExtract</Namespace>
   <Namespace>System.Collections.Immutable</Namespace>
 </Query>

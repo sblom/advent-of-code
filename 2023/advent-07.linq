@@ -1,6 +1,6 @@
 <Query Kind="Statements">
   <NuGetReference>LinqToRanges</NuGetReference>
-  <NuGetReference>RegExtract</NuGetReference>
+  <NuGetReference  Prerelease="true">RegExtract</NuGetReference>
   <Namespace>LinqToRanges</Namespace>
   <Namespace>RegExtract</Namespace>
   <Namespace>static System.Math</Namespace>
@@ -1026,16 +1026,9 @@ checked{
 
 #endregion
 
-lines = lines.Select(s => s.Split(" ")[0]).Dump();
-Util.Dif(lines,lines.OrderByDescending(x=>x,new HandComparer(true))).Dump();
-
-
 var hands = lines.Extract<(string, int)>(@"([0-9TJQKA]+) (\d+)");
 hands.OrderBy(x => x.Item1, new HandComparer(jokers: false)).Select((x, i) => x.Item2 * (i + 1)).Sum().Dump("Part 1");
-hands.OrderByDescending(x => x.Item1, new HandComparer(jokers: true)).Select((x, i) => x.Item2 * (i + 1)).Sum().Dump("Part 2");
-
-
-
+hands.OrderBy(x => x.Item1, new HandComparer(jokers: true)).Select((x, i) => x.Item2 * (i + 1)).Sum().Dump("Part 2");
 
 class HandComparer : IComparer<string>
 {

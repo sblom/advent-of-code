@@ -5,6 +5,8 @@
   <Namespace>BenchmarkDotNet.Running</Namespace>
 </Query>
 
+#load "..\lib\Utils"
+
 var lines = await AoC.GetLinesWeb();
 //lines = new[] { @"1,1,1,4,99,5,6,0,99"};
 
