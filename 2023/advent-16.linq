@@ -46,43 +46,43 @@ var grid = lines.Select(line => line.ToCharArray()).ToArray();
     
     locs.Count().Dump1();
 
-    IEnumerable<(int, int, int, int)> Next((int x, int y, int dx, int dy) dir)
-    {
-        var (x, y, dx, dy) = dir;
-        if (x < 0 || x >= grid[0].Length || y < 0 || y >= grid.Length) yield break;
+IEnumerable<(int, int, int, int)> Next((int x, int y, int dx, int dy) dir)
+{
+    var (x, y, dx, dy) = dir;
+    if (x < 0 || x >= grid[0].Length || y < 0 || y >= grid.Length) yield break;
 
-        switch (grid[y][x])
-        {
-            case '/':
-                (dx, dy) = (-dy, -dx); yield return (x + dx, y + dy, dx, dy);
-                break;
-            case '\\':
-                (dx, dy) = (dy, dx); yield return (x + dx, y + dy, dx, dy);
-                break;
-            case '|':
-                if (dx != 0)
-                {
-                    yield return (x, y - 1, 0, -1);
-                    yield return (x, y + 1, 0, 1);
-                }
-                else
-                {
-                    yield return (x + dx, y + dy, dx, dy);
-                }
-                break;
-            case '-':
-                if (dy != 0)
-                {
-                    yield return (x - 1, y, -1, 0);
-                    yield return (x + 1, y, 1, 0);
-                }
-                else
-                {
-                    yield return (x + dx, y + dy, dx, dy);
-                }
-                break;
-            default: yield return (x + dx,y + dy,dx,dy);
-                break;
+    switch (grid[y][x])
+    {
+        case '/':
+            (dx, dy) = (-dy, -dx); yield return (x + dx, y + dy, dx, dy);
+            break;
+        case '\\':
+            (dx, dy) = (dy, dx); yield return (x + dx, y + dy, dx, dy);
+            break;
+        case '|':
+            if (dx != 0)
+            {
+                yield return (x, y - 1, 0, -1);
+                yield return (x, y + 1, 0, 1);
+            }
+            else
+            {
+                yield return (x + dx, y + dy, dx, dy);
+            }
+            break;
+        case '-':
+            if (dy != 0)
+            {
+                yield return (x - 1, y, -1, 0);
+                yield return (x + 1, y, 1, 0);
+            }
+            else
+            {
+                yield return (x + dx, y + dy, dx, dy);
+            }
+            break;
+        default: yield return (x + dx,y + dy,dx,dy);
+            break;
     };
 }
 

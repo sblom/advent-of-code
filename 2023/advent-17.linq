@@ -15,7 +15,7 @@
 //#load "..\Lib\BFS"
 
 //#define TEST
-#define CHECKED
+//#define CHECKED
 
 #if !TEST
 var lines = await AoC.GetLinesWeb();
