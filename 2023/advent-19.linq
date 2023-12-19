@@ -79,21 +79,22 @@ foreach (var part in parts)
 
             if (rule switch
             {
-                Comparison(var prop, '<', var val, var wf) => part[prop] < val,
-                Comparison(var prop, '>', var val, var wf) => part[prop] > val,
+                Conditional(Condition(var prop, '<', var val), var wf) => part[prop] < val,
+                Conditional(Condition(var prop, '>', var val), var wf) => part[prop] > val,
+                _ => false
             })
             {
-                if (rule is Comparison(_,_,_,Workflow(var next)))
+                if (rule is Conditional(_,Workflow(var next)))
                 {
                     workflow = next;
                     goto next_workflow;
                 }
-                else if (rule is Comparison(_,_,_,Accept))
+                else if (rule is Conditional(_,Accept))
                 {
                     accepted.Add(part);
                     goto next_part;
                 }
-                else if (rule is Comparison(_,_,_,Reject))
+                else if (rule is Conditional(_,Reject))
                 {
                     goto next_part;
                 }
@@ -128,11 +129,11 @@ void WalkTree(string workflow, string cond)
     {
         if (step is Absolute(var wf))
         {
-            WalkTree(wf switch { Accept => "A", Reject => "R", Workflow(var next) => next }, cond + (cond != "" ? "," : "") + negcond);
+            WalkTree(wf switch { Accept => "A", Reject => "R", Workflow(var next) => next, _ => throw new Exception() }, cond + (cond != "" ? "," : "") + negcond);
         }
-        else if (step is Comparison(var prop, var test, var val, var nwf))
+        else if (step is Conditional(Condition(var prop, var test, var val), var nwf))
         {
-            WalkTree(nwf switch { Accept => "A", Reject => "R", Workflow(var next) => next }, cond + (cond != "" ? ",": "") + negcond + (cond != "" || negcond != "" ? "," : cond) + prop + test + val);
+            WalkTree(nwf switch { Accept => "A", Reject => "R", Workflow(var next) => next, _ => throw new Exception() }, cond + (cond != "" ? ",": "") + negcond + (cond != "" || negcond != "" ? "," : cond) + prop + test + val);
             negcond += (negcond != "" ? ",": "") + prop + (test == '>' ? "<=" : ">=") + val;
         }
     }
@@ -140,7 +141,7 @@ void WalkTree(string workflow, string cond)
 
 WalkTree("in","");
 
-var rules = acc.Select(a => a.Extract<List<(char,string,int)>>(@"(([xmas])([><]=?)(\d+),*)+").OrderBy(x => "xmas".IndexOf(x.Item1)));
+var rules = acc.Select(a => (a.Extract<List<(char,string,int)>>(@"(([xmas])([><]=?)(\d+),*)+") ?? new()).OrderBy(x => "xmas".IndexOf(x.Item1)));
 
 long tot = 0;
 
@@ -187,28 +188,31 @@ tot.Dump2();
 
 record Rule()
 {
-    public static Rule Parse(string str)
+    public static Rule? Parse(string str)
     {
         if (str.Contains(":"))
-            return str.Extract<Comparison>();
+            return str.Extract<Conditional>();
         else
-            return new Absolute(str.Extract<Action>());
+            return str.Extract<Absolute>();
     }
 }
 
-record Absolute(Action step): Rule;
-record Comparison(char prop, char test, int val, Action step): Rule
+record Absolute(Action step) : Rule
 {
-    public const string REGEXTRACT_REGEX_PATTERN = @"(.)([<>])(\d+):(\w+)";
+    public const string REGEXTRACT_REGEX_PATTERN = @"(.*)";
 }
+record Conditional(Condition cond, Action step) : Rule
+{
+    public const string REGEXTRACT_REGEX_PATTERN = @"((.)([<>])(\d+)):(\w+)";
+}
+record Condition(char prop, char test, int val);
 
 record Action
 {
-    public const string REGEXTRACT_REGEX_PATTERN = @".*";
-    
     public static Action Parse(string str)
     {
-        return str switch {
+        return str switch
+        {
             "A" => new Accept(),
             "R" => new Reject(),
             _ => new Workflow(str)
@@ -216,8 +220,8 @@ record Action
     }
 }
 record Accept : Action;
-record Reject: Action;
-record Workflow(string workflow): Action;
+record Reject : Action;
+record Workflow(string workflow) : Action;
 
 #if CHECKED
 }
