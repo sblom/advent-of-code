@@ -49,7 +49,8 @@ Util.HorizontalRun("Part 1,Part 2",AoC._outputs).Dump();
 
 #endregion
 
-var workflows = lines.GroupLines().First().Extract<(string,List<Step>)>(@"(\w+){((.)([<>])(\d+):(\w+),|(\w+))+").ToDictionary(x=> x.Item1, x=>x.Item2);
+Dictionary<string,List<Rule>> workflows = lines.GroupLines().First().Extract<(string workflow,List<Rule> rules)>(@"(\w+){(([^,]+),?)+}").ToDictionary(x=> x.workflow, x=>x.rules);
+
 var parts = lines.GroupLines().Skip(1).First().Extract<Dictionary<char,int>>(@"\{((.)=(\d+),?)+\}");
 
 List<Dictionary<char,int>> accepted = new();
@@ -61,38 +62,38 @@ foreach (var part in parts)
     {
         foreach (var rule in workflows[workflow])
         {
-            if (rule.abs == "A")
+            if (rule is Absolute(Accept))
             {
                 accepted.Add(part);
                 goto next_part;
             }
-            else if (rule.abs == "R")
+            else if (rule is Absolute(Reject))
             {
                 goto next_part;
             }
-            else if (rule.abs != null)
+            else if (rule is Absolute(Workflow(var wf)))
             {
-                workflow = rule.abs;
+                workflow = wf;
                 goto next_workflow;
             }
 
-            if (rule.test switch
+            if (rule switch
             {
-                '<' => part[rule.prop ?? ' '] < rule.val,
-                '>' => part[rule.prop ?? ' '] > rule.val,
+                Comparison(var prop, '<', var val, var wf) => part[prop] < val,
+                Comparison(var prop, '>', var val, var wf) => part[prop] > val,
             })
             {
-                if (rule.step.Length > 1)
+                if (rule is Comparison(_,_,_,Workflow(var next)))
                 {
-                    workflow = rule.step;
+                    workflow = next;
                     goto next_workflow;
                 }
-                else if (rule.step == "A")
+                else if (rule is Comparison(_,_,_,Accept))
                 {
                     accepted.Add(part);
                     goto next_part;
                 }
-                else if (rule.step == "R")
+                else if (rule is Comparison(_,_,_,Reject))
                 {
                     goto next_part;
                 }
@@ -125,14 +126,14 @@ void WalkTree(string workflow, string cond)
     
     foreach (var step in workflows[workflow])
     {
-        if (step.abs != null)
+        if (step is Absolute(var wf))
         {
-            WalkTree(step.abs, cond + (cond != "" ? "," : "") + negcond);
+            WalkTree(wf switch { Accept => "A", Reject => "R", Workflow(var next) => next }, cond + (cond != "" ? "," : "") + negcond);
         }
-        else
+        else if (step is Comparison(var prop, var test, var val, var nwf))
         {
-            WalkTree(step.step, cond + (cond != "" ? ",": "") + negcond + (cond != "" || negcond != "" ? "," : cond) + step.prop + step.test + step.val);
-            negcond += (negcond != "" ? ",": "") + step.prop + (step.test == '>' ? "<=" : ">=") + step.val;
+            WalkTree(nwf switch { Accept => "A", Reject => "R", Workflow(var next) => next }, cond + (cond != "" ? ",": "") + negcond + (cond != "" || negcond != "" ? "," : cond) + prop + test + val);
+            negcond += (negcond != "" ? ",": "") + prop + (test == '>' ? "<=" : ">=") + val;
         }
     }
 }
@@ -184,14 +185,39 @@ foreach (var rule in rules)
 
 tot.Dump2();
 
-record Workflow(string name, List<Step> contitions);
-record Step(char? prop, char? test, int? val, string step, string abs);
-record Part {
-    public int x {get;set;}
-    public int m {get;set;}
-    public int a {get;set;}
-    public int s {get;set;}
+record Rule()
+{
+    public static Rule Parse(string str)
+    {
+        if (str.Contains(":"))
+            return str.Extract<Comparison>();
+        else
+            return new Absolute(str.Extract<Action>());
+    }
 }
+
+record Absolute(Action step): Rule;
+record Comparison(char prop, char test, int val, Action step): Rule
+{
+    public const string REGEXTRACT_REGEX_PATTERN = @"(.)([<>])(\d+):(\w+)";
+}
+
+record Action
+{
+    public const string REGEXTRACT_REGEX_PATTERN = @".*";
+    
+    public static Action Parse(string str)
+    {
+        return str switch {
+            "A" => new Accept(),
+            "R" => new Reject(),
+            _ => new Workflow(str)
+        };
+    }
+}
+record Accept : Action;
+record Reject: Action;
+record Workflow(string workflow): Action;
 
 #if CHECKED
 }
