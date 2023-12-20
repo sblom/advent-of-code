@@ -8,6 +8,7 @@
   <Namespace>System.Collections.Immutable</Namespace>
   <Namespace>Wintellect.PowerCollections</Namespace>
   <Namespace>System.Globalization</Namespace>
+  <Namespace>System.Collections.ObjectModel</Namespace>
 </Query>
 
 #region Preamble
@@ -15,8 +16,9 @@
 #load "..\Lib\Utils"
 //#load "..\Lib\BFS"
 
-//#define TEST
+#define TEST
 //#define CHECKED
+//#define TRACE
 
 #if !TEST
 var lines = await AoC.GetLinesWeb();
@@ -55,7 +57,9 @@ var parts = lines.GroupLines().Skip(1).First().Extract<Dictionary<char,int>>(@"\
 
 List<Dictionary<char,int>> accepted = new();
 
-foreach (var part in parts)
+parts.Where(p => IsAccepted(p)).Sum(kv => kv.Values.Sum()).Dump1();
+
+bool IsAccepted(Dictionary<char,int> part)
 {
     string workflow = "in";
     while (true)
@@ -64,17 +68,16 @@ foreach (var part in parts)
         {
             if (rule is Absolute(Accept))
             {
-                accepted.Add(part);
-                goto next_part;
+                return true;
             }
             else if (rule is Absolute(Reject))
             {
-                goto next_part;
+                return false;
             }
             else if (rule is Absolute(Workflow(var wf)))
             {
                 workflow = wf;
-                goto next_workflow;
+                break;
             }
 
             if (rule switch
@@ -87,25 +90,20 @@ foreach (var part in parts)
                 if (rule is Conditional(_,Workflow(var next)))
                 {
                     workflow = next;
-                    goto next_workflow;
+                    break;
                 }
                 else if (rule is Conditional(_,Accept))
                 {
-                    accepted.Add(part);
-                    goto next_part;
+                    return true;
                 }
                 else if (rule is Conditional(_,Reject))
                 {
-                    goto next_part;
+                    return false;
                 }
             }
         }
-        next_workflow:;        
     }
-    next_part:;
 }
-
-accepted.Sum(x => x.Values.Sum()).Dump1();
 
 var acc = new List<string>();
 var rej = new List<string>();
@@ -142,6 +140,38 @@ void WalkTree(string workflow, string cond)
 WalkTree("in","");
 
 var rules = acc.Select(a => (a.Extract<List<(char,string,int)>>(@"(([xmas])([><]=?)(\d+),*)+") ?? new()).OrderBy(x => "xmas".IndexOf(x.Item1)));
+acc.Dump();
+
+#region Experiment with checking cross product of all paritions
+#if EXPERIMENT_BREAKS
+Dictionary<char, HashSet<int>> breaks = new(){
+    {'x', new(){1}},
+    {'m', new(){1}},
+    {'a', new(){1}},
+    {'s', new(){1}},
+};
+
+foreach (var rule in rules)
+{
+    foreach (var condition in rule)
+    {
+        switch(condition.Item2)
+        {
+            case ">":
+            case "<=":
+                breaks[condition.Item1].Add(condition.Item3 + 1);
+                break;
+            case "<":
+            case ">=":
+                breaks[condition.Item1].Add(condition.Item3 - 1);
+                break;
+        }
+    }
+}
+
+breaks.Aggregate(1L, (x,kv) => x * kv.Value.Count()).ToString("0,0").Dump("magnitude");
+#endif
+#endregion
 
 long tot = 0;
 

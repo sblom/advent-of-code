@@ -41,6 +41,16 @@ Util.HorizontalRun("Part 1,Part 2",AoC._outputs).Dump();
 
 var modulerules = lines.Extract<((char? type, string name), List<string> output)>(@"^(([%&])?([a-z]+)) -> (([a-z]+),? ?)+$");
 
+#if MAKEGRAPH
+foreach (var rule in modulerules)
+{
+    foreach (var output in rule.output)
+    {
+        Console.WriteLine($"{rule.Item1.name}[\"{rule.Item1.type ?? ' '}{rule.Item1.name}\"] ---> {output}");
+    }
+}
+#endif
+
 var moduleslist = modulerules.Select(x => (module: x.Item1, outputs: x.Item2, inputs: modulerules.Where(y => y.Item2.Contains(x.Item1.name)).Select(x => x.Item1.Item2)));
 
 var modules = moduleslist.ToDictionary(x => x.module.name, x => x);
@@ -55,7 +65,7 @@ foreach (var module in moduleslist)
 
 long low = 0, high = 0;
 
-for (int i = 0; i < 1000; i++)
+for (int i = 1; ; i++)
 {
     messages.Enqueue(("", "broadcaster", false));
     
@@ -71,6 +81,14 @@ for (int i = 0; i < 1000; i++)
         else
         {
             low++;
+        }
+        
+        if (message.to is "rx" or "gs" or "vg" or "zf" or "kd")
+        {
+            if (!message.pulse)
+            {
+                (message.to,i).Dump();
+            }
         }
 
         if (!modules.ContainsKey(message.to))
