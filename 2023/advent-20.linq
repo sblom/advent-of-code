@@ -65,8 +65,10 @@ foreach (var module in moduleslist)
 
 long low = 0, high = 0;
 
+Dictionary<string,long> vals = new();
+
 for (int i = 1; ; i++)
-{
+{    
     messages.Enqueue(("", "broadcaster", false));
     
     while (messages.Any())
@@ -88,6 +90,13 @@ for (int i = 1; ; i++)
             if (!message.pulse)
             {
                 (message.to,i).Dump();
+                vals[message.to] = i;
+            }
+            
+            if (vals.Count() == 4)
+            {
+                vals.Values.Aggregate((x,y) => x * y).Dump2();
+                return;
             }
         }
 
@@ -124,12 +133,9 @@ for (int i = 1; ; i++)
                 break;
         }
     }
+    
+    if (i == 1000) (low * high).Dump1();
 }
-
-low.Dump();
-high.Dump();
-
-(low * high).Dump1();
 
 #if CHECKED
 }
