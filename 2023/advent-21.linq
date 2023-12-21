@@ -16,8 +16,8 @@
 #load "..\Lib\Utils"
 //#load "..\Lib\BFS"
 
-#define TEST
-#define CHECKED
+//#define TEST
+//#define CHECKED
 //#define TRACE
 
 #if !TEST
@@ -46,6 +46,8 @@ Util.HorizontalRun("Part 1,Part 2",AoC._outputs).Dump();
 #endregion
 
 var grid = lines.Select(x => x.ToCharArray()).ToArray();
+
+grid.Sum(row => row.Count(ch => ch == '#')).Dump();
 
 var Y = grid.Length.Dump();
 var X = grid[0].Length;
@@ -94,7 +96,7 @@ long SW2 = tiles.Where(t => t.x >= (-Rm + 1) * X && t.x < (-Rm + 2) * X && t.y >
 
 ((R - 1) * (R - 1) * origin + R * R * neighbor + N + E + S + W + R * (NE2 + NW2 + SE2 + SW2) + (R - 1) * (NE1 + NW1 + SW1 + SE1)).Dump2();
 
-DrawGrid(tiles);
+//DrawGrid(tiles);
 
 void DrawGrid(HashSet<(int x, int y)> tiles)
 {

@@ -5,10 +5,11 @@
   <Namespace>LinqToRanges</Namespace>
   <Namespace>RegExtract</Namespace>
   <Namespace>static System.Math</Namespace>
+  <Namespace>System.Collections.Frozen</Namespace>
   <Namespace>System.Collections.Immutable</Namespace>
-  <Namespace>Wintellect.PowerCollections</Namespace>
-  <Namespace>System.Globalization</Namespace>
   <Namespace>System.Collections.ObjectModel</Namespace>
+  <Namespace>System.Globalization</Namespace>
+  <Namespace>Wintellect.PowerCollections</Namespace>
 </Query>
 
 #region Preamble
