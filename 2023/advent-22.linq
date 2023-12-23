@@ -1,14 +1,14 @@
 <Query Kind="Statements">
   <NuGetReference>LinqToRanges</NuGetReference>
   <NuGetReference>RawScape.Wintellect.PowerCollections</NuGetReference>
-  <NuGetReference Prerelease="true">RegExtract</NuGetReference>
+  <NuGetReference>RegExtract</NuGetReference>
   <Namespace>LinqToRanges</Namespace>
   <Namespace>RegExtract</Namespace>
   <Namespace>static System.Math</Namespace>
   <Namespace>System.Collections.Immutable</Namespace>
-  <Namespace>Wintellect.PowerCollections</Namespace>
-  <Namespace>System.Globalization</Namespace>
   <Namespace>System.Collections.ObjectModel</Namespace>
+  <Namespace>System.Globalization</Namespace>
+  <Namespace>Wintellect.PowerCollections</Namespace>
 </Query>
 
 #region Preamble
@@ -54,9 +54,9 @@ var zh = bricks.Max(b => Max(b.e1.z1, b.e2.z2));
 
 (xl, xh, yl, yh, zl, zh).Dump();
 
-var cubes = Enumerable.Range(0, zh + 1).Select(x => Enumerable.Range(0, 10).Select(x => Enumerable.Range(0, 10).Select(x => -1).ToArray()).ToArray()).ToArray();
+var cubes = Enumerable.Range(0, zh + 1).Select(x => Enumerable.Range(0, 10).Select(x => Enumerable.Range(0, 10).Select(x => (short)-1).ToArray()).ToArray()).ToArray();
 
-for (var i = 0; i < bricks.Length; i++)
+for (short i = 0; i < bricks.Length; i++)
 {
     for (int x = bricks[i].e1.x1, y = bricks[i].e1.y1, z = bricks[i].e1.z1; ; x += Sign(bricks[i].e2.x2 - bricks[i].e1.x1), y += Sign(bricks[i].e2.y2 - bricks[i].e1.y1), z += Sign(bricks[i].e2.z2 - bricks[i].e1.z1))
     {
@@ -69,7 +69,7 @@ bool lowered = false;
 do
 {
     lowered = false;
-    HashSet<int> done = new();
+    HashSet<short> done = new();
     for (int h = 0; h < cubes.Length; h++)
     {
         var next = cubes[h].SelectMany(x => x.Where(y => y != -1)).ToHashSet().Except(done);
@@ -107,7 +107,7 @@ for (int i = 9; i >= 0; i--)
 
 int p1 = 0;
 
-for (var i = 0; i < bricks1.Length; i++)
+for (short i = 0; i < bricks1.Length; i++)
 {
     for (int x = bricks1[i].e1.x1, y = bricks1[i].e1.y1, z = bricks1[i].e1.z1; ; x += Sign(bricks1[i].e2.x2 - bricks1[i].e1.x1), y += Sign(bricks1[i].e2.y2 - bricks1[i].e1.y1), z += Sign(bricks1[i].e2.z2 - bricks1[i].e1.z1))
     {
@@ -143,6 +143,30 @@ p1.Dump1();
 
 #region Part 2
 
+var supportedBy = new HashSet<short>[bricks1.Length];
+
+for (short i = 0; i < bricks1.Length; i++)
+{
+    supportedBy[i] = GetSupportedBy(i,bricks1,cubes).ToHashSet();
+}
+
+int tot = 0;
+
+for (short i = 0; i < bricks1.Length; i++)
+{
+    HashSet<short> fell = new() { i };
+    HashSet<short> next;
+    do    
+    {
+        next = supportedBy.Select((x,i) => (x,i:(short)i)).Where(x => x.x.All(s => fell.Contains(s))).Select(x => x.i).Except(fell).ToHashSet();
+        fell.UnionWith(next);
+    } while (next.Any());
+    tot += fell.Count() - 1;
+}
+
+tot.Dump2();
+
+#if OLD_PART2
 var cubesclone = cubes.Select(x => x.Select(y => y.ToArray()).ToArray()).ToArray();
 
 int p2 = 0;
@@ -185,10 +209,13 @@ for (var i = 0; i < bricks1.Length; i++)
 }
 
 p2.Dump2();
+#endif
 
 #endregion
 
-int LowerBlock(int i, bool actually, ((int x1,int y1, int z1) e1,(int x2,int y2,int z2) e2)[] bricks1, int[][][] cubes)
+
+
+int LowerBlock(short i, bool actually, ((int x1,int y1, int z1) e1,(int x2,int y2,int z2) e2)[] bricks1, short[][][] cubes)
 {
     int hl = 100000;
     
@@ -225,7 +252,7 @@ int LowerBlock(int i, bool actually, ((int x1,int y1, int z1) e1,(int x2,int y2,
     return hl;
 }
 
-IEnumerable<int> GetSupported(int i, ((int x1,int y1, int z1) e1,(int x2,int y2,int z2) e2)[] bricks, int[][][] cubes)
+IEnumerable<short> GetSupported(short i, ((int x1,int y1, int z1) e1,(int x2,int y2,int z2) e2)[] bricks, short[][][] cubes)
 {
     for (int x = bricks[i].e1.x1, y = bricks[i].e1.y1, z = bricks[i].e1.z1; ; x += Sign(bricks[i].e2.x2 - bricks[i].e1.x1), y += Sign(bricks[i].e2.y2 - bricks[i].e1.y1), z += Sign(bricks[i].e2.z2 - bricks[i].e1.z1))
     {
@@ -235,7 +262,19 @@ IEnumerable<int> GetSupported(int i, ((int x1,int y1, int z1) e1,(int x2,int y2,
         }
         if (!(x != bricks[i].e2.x2 || y != bricks[i].e2.y2 || z != bricks[i].e2.z2)) break;
     }
+}
 
+IEnumerable<short> GetSupportedBy(short i, ((int x1, int y1, int z1) e1, (int x2, int y2, int z2) e2)[] bricks, short[][][] cubes)
+{
+    for (int x = bricks[i].e1.x1, y = bricks[i].e1.y1, z = bricks[i].e1.z1; ; x += Sign(bricks[i].e2.x2 - bricks[i].e1.x1), y += Sign(bricks[i].e2.y2 - bricks[i].e1.y1), z += Sign(bricks[i].e2.z2 - bricks[i].e1.z1))
+    {
+        if (z == 0) yield return -1;
+        if (z >= 1 && cubes[z - 1][x][y] != -1 && cubes[z - 1][x][y] != i)
+        {
+            yield return cubes[z - 1][x][y];
+        }
+        if (!(x != bricks[i].e2.x2 || y != bricks[i].e2.y2 || z != bricks[i].e2.z2)) break;
+    }
 }
 
 #if CHECKED
