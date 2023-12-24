@@ -1,7 +1,7 @@
 <Query Kind="Statements">
   <NuGetReference>LinqToRanges</NuGetReference>
   <NuGetReference>RawScape.Wintellect.PowerCollections</NuGetReference>
-  <NuGetReference>RegExtract</NuGetReference>
+  <NuGetReference Prerelease="true">RegExtract</NuGetReference>
   <Namespace>LinqToRanges</Namespace>
   <Namespace>RegExtract</Namespace>
   <Namespace>static System.Math</Namespace>
@@ -23,81 +23,62 @@
 #if !TEST
 var lines = await AoC.GetLinesWeb();
 #else
-var lines = @"1,0,1~1,2,1   <- A
-0,0,2~2,0,2   <- B
-0,2,3~2,2,3   <- C
-0,0,4~0,2,4   <- D
-2,0,5~2,2,5   <- E
-0,1,6~2,1,6   <- F
-1,1,8~1,1,9   <- G".GetLines();
+var lines = @"#.#####################
+\#.......#########...###
+\#######.#########.#.###
+\###.....#.>.>.###.#.###
+\###v#####.#v#.###.#.###
+\###.>...#.#.#.....#...#
+\###v###.#.#.#########.#
+\###...#.#.#.......#...#
+\#####.#.#.#######.#.###
+\#.....#.#.#.......#...#
+\#.#####.#.#.#########v#
+\#.#...#...#...###...>.#
+\#.#.#v#######v###.###v#
+\#...#.>.#...>.>.#.###.#
+\#####v#.#.###v#.#.###.#
+\#.....#...#...#.#.#...#
+\#.#########.###.#.#.###
+\#...###...#...#...#.###
+\###.###.#.###v#####v###
+\#...#...#.#.>.>.#.>.###
+\#.###.###.#.###.#.#v###
+\#.....###...###...#...#
+\#####################.#".GetLines();
 #endif
 
 #if CHECKED
 checked{
 #endif
 
-AoC._outputs = new DumpContainer[] {new(), new()};
-Util.HorizontalRun("Part 1,Part 2",AoC._outputs).Dump();
+AoC._outputs = new DumpContainer[] { new(), new() };
+Util.HorizontalRun("Part 1,Part 2", AoC._outputs).Dump();
 
 #endregion
 
 var grid = lines.Select(x => x.ToCharArray()).ToArray();
+//lines.DumpFixed();
 
 List<((int dr, int dc) dir, char gate)> dirs = [((0,1),'>'), ((0,-1),'<'), ((1,0),'v'), ((-1,0),'^')];
-var visited = new HashSet<(int,int)>();
 
-var frontier = new Queue<(int, int)>();
-frontier.Enqueue((0, 1));
+Queue<((int,int),(int,int))> frontier = new();
+frontier.Enqueue(((0,1), (1,0)));
+List<((int r0, int c0) start, (int r1, int c1) end, int len)> segments = new();
 
-Dictionary<(int,int),List<((int,int),int)>> edges = new();
-
-while (frontier.TryDequeue(out (int r, int c) loc)){
-    int len = 0;
-    var (r,c) = loc;
-
-    while (true)
-    {
-        var next = Next((r,c)).SingleOrDefault();
-        if (next != (0,0))
+while (frontier.TryDequeue(out ((int,int) loc, (int,int) dir) c))
+{
+    var segment = Walk(c.loc, c.dir);
+    segments.Add((c.loc, segment.end, segment.len));
+    if (segment.end.r != grid.Length - 1)    
+        foreach (var (direction, gate) in dirs)
         {
-            if (r == grid.Length - 1)
+            if (grid[segment.end.r + direction.dr][segment.end.c + direction.dc] == gate)
             {
-                edges[loc] = new();
-                edges[loc].Add(((r, c), len));
-                goto next_loc;
-            }
-
-            (r,c) = next;
-            len++;
-        }
-        else
-        {
-            foreach (var ((dr,dc), gate) in dirs)
-            {
-                if (grid[r + dr][c + dc] == gate)
-                {
-                    (r,c) = (r + 2 * dr, c + 2 * dc);
-                    len += 3;
-                    break;
-                }
-            }
-            
-            if (!edges.ContainsKey(loc)) edges[loc] = new();
-
-            foreach (var ((dr,dc), gate) in dirs)
-            {
-                if (grid[r + dr][c + dc] == gate)
-                {
-                    frontier.Enqueue((r + 2 * dr, c + 2 * dc));
-                    edges[loc].Add(((r, c), len));
-                }
+                frontier.Enqueue((segment.end, direction));
             }
         }
-    }
-    next_loc:;
 }
-
-edges.Dump();
 
 ((int r, int c) end, int len) Walk((int r, int c) loc, (int dr, int dc) dir)
 {
@@ -105,46 +86,97 @@ edges.Dump();
     var (dr, dc) = dir;
     var (r, c) = loc;
 
+    (r, c) = (r + dr, c + dc);
+    len++;
+
     do
     {
+        if (r == grid.Length - 1)
+        {
+            return ((r, c), len);
+        }
+        
         foreach (var (direction, gate) in dirs)
         {
             if ((direction.dr, direction.dc) == (-dr, -dc))
                 continue;
-            if (grid[r + dr][c + dc] == gate)
+            if (grid[r + direction.dr][c + direction.dc] == gate && len > 2)
             {
-                return ((r + 2 * dr, c + 2 * dc), len + 2);
+                return ((r + 2 * direction.dr, c + 2 * direction.dc), len + 2);
             }
-            if (grid[r + dr][c + dc] == '.')
+            if (grid[r + direction.dr][c + direction.dc] == '.' || grid[r + direction.dr][c + direction.dc] == gate)
             {
-                (r,c) = (r + dr, c + dc);
+                (r,c) = (r + direction.dr, c + direction.dc);
                 (dr, dc) = direction;
+                len++;
                 break;
             }
         }
     } while (true);
 }
 
-IEnumerable<(int r, int c)> Next((int r,int c) loc)
+Dictionary<(int, int), int> memo = new();
+
+MaxLen((0, 1)).Dump1();
+
+
+var distinct = segments.Distinct().ToList();
+foreach (var d in distinct.ToList().Select(x => (start: (r0: x.end.r1, c0: x.end.c1), end: (r1: x.start.r0, c1: x.start.c0), x.len)))
 {
-    var (r,c) = loc;
-    visited.Add((r,c));
-    foreach (var ((dr, dc), gate) in dirs)
+    distinct.Add(d);
+}
+
+var lookup = distinct.ToLookup(x => x.start);
+
+var visited = ImmutableHashSet<(int,int)>.Empty;
+
+int max = 0;
+
+void LongWalk((int,int) loc, ImmutableHashSet<(int,int)> visited, int len)
+{
+    if (loc == (140,139))
     {
-        if (r + dr < 0 || r + dr >= grid.Length || c + dc < 0 || c + dc >= grid[0].Length)
+        if (len > max)
         {
-            continue;
+            max = len;
+            (max, len).Dump();
+        }
+        return;
+    }
+    
+    visited = visited.Add(loc);
+    foreach (var next in lookup[loc].OrderByDescending(x => x.len))
+    {
+        if (visited.Contains(next.end)) continue;
+        LongWalk(next.end,visited,len+next.len);
+    }
+}
+
+LongWalk((0,1),ImmutableHashSet<(int,int)>.Empty,0);
+
+max.Dump2();
+
+
+int MaxLen((int,int) loc)
+{
+    if (memo.ContainsKey(loc)) return memo[loc];
+    var (r,c) = loc;
+    if (r == grid.Length - 1)
+    {
+        return 0;
+    }
+    else
+    {
+        int max = 0;
+        foreach (var next in segments.Where(x => x.start == (r,c)))
+        {
+            var n = next.len + MaxLen(next.end);
+            if (n > max) max = n;
         }
         
-        if (grid[r+dr][c+dc] == gate)
-        {
-            yield break;
-        }
-        if (grid[r+dr][c+dc] == '.' && !visited.Contains((r + dr, c + dc)))
-        {
-            yield return (r + dr, c + dc);
-        }
-    }    
+        memo[loc] = max;
+        return max;
+    }
 }
 
 #if CHECKED

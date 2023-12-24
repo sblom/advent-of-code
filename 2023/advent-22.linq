@@ -1,7 +1,7 @@
 <Query Kind="Statements">
   <NuGetReference>LinqToRanges</NuGetReference>
   <NuGetReference>RawScape.Wintellect.PowerCollections</NuGetReference>
-  <NuGetReference>RegExtract</NuGetReference>
+  <NuGetReference Version="2.2.2-tags-beta.1">RegExtract</NuGetReference>
   <Namespace>LinqToRanges</Namespace>
   <Namespace>RegExtract</Namespace>
   <Namespace>static System.Math</Namespace>
