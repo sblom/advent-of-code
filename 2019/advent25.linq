@@ -3,6 +3,7 @@
 </Query>
 
 #load "Lib\IntCodeVM.linq"
+#load "..\Lib\Utils"
 
 // Solved this by hand. Wandered the environment and discovered the
 // obtainable items:
@@ -27,7 +28,10 @@
 
 async Task Main()
 {
-	var lines = await AoC.GetLinesWeb();
+    AoC._outputs = new DumpContainer[] { new(), new() };
+    Util.HorizontalRun("Part 1,Part 2", AoC._outputs).Dump();
+
+    var lines = await AoC.GetLinesWeb();
 	
 	var mem = lines.First().Split(',').Select(long.Parse).Concat(Enumerable.Repeat(0L,100_000_000)).ToArray();
 	
@@ -65,16 +69,42 @@ east
 north
 west
 ".Replace("\r", "").ToCharArray().ToList();
+    
+    int seen = 0;
+    string prefix = "typing ";
+    int code = 0;
 
 	public long Read()
 	{
 		var result = (long)Buffer[0];
 		Buffer.RemoveAt(0);
+        Console.Write(Util.WithStyle((char)result,"font-weight:bold"));
 		return result;
 	}
 
 	public void Write(long val)
 	{
+        if (seen == prefix.Length)
+        {
+            if ((char)val >= '0' && (char)val <= '9')
+            {
+                code *= 10;
+                code += (char)val - '0';
+            }
+            else
+            {
+                code.Dump1();
+                seen = 0;
+            }
+        }
+        else if (prefix[seen] == (char)val)
+        {
+            seen++;
+        }
+        else
+        {
+            seen = 0;
+        }
 		Console.Write((char)val);
 	}
 }

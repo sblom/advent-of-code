@@ -1,6 +1,6 @@
 <Query Kind="Statements">
   <NuGetReference>LinqToRanges</NuGetReference>
-  <NuGetReference  Prerelease="true">RegExtract</NuGetReference>
+  <NuGetReference Prerelease="true">RegExtract</NuGetReference>
   <Namespace>LinqToRanges</Namespace>
   <Namespace>RegExtract</Namespace>
   <Namespace>static System.Math</Namespace>
@@ -23,6 +23,8 @@ xtwone3four
 zoneight234
 7pqrstsixteen".GetLines();
 #endif
+
+//lines.Extract<List<(int?,string)>>(@"(?=([0-9]|one|two|three|four|five|six|seven|eight|nine).*?)+").Dump();
 
 int t = 0;
 
