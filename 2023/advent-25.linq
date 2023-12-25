@@ -42,16 +42,13 @@ int acc = 1;
 var components = lines.Extract<(string part, List<string> connections)>(@"(...): ((...) ?)+");
 var edges = components.SelectMany(component => component.connections.Select(conn => (left: component.part, right: conn)).Concat(component.connections.Select(conn => (left: conn, right: component.part)))).ToLookup(x => x.left);
 
-int ReachableIn(string start, int n, IImmutableSet<string> visited)
-{
-    if (n == 0) return 1;
-    return 1 + edges[start].Where(edge => !visited.Contains(edge.right)).Select(edge => ReachableIn(edge.right, n - 1, visited.Add(edge.right))).Sum();
-}
-
 var edgesarray = edges.Select(e => e.Key).ToArray();
 
 Dictionary<string,int> counts = new();
 
+// This is a little bit gonzo--I take 600 random pairs of nodes and do a BFS from one to the other.
+// Afterward, I count up the edges that were used. About half the time, I pick nodes on opposite "halves"
+// of the split. Barring bad luck, this makes the 3 edges that need to be removed stand out significantly.
 for (int i = 0; i < 600; i++)
 {
     var from = edgesarray[Random.Shared.Next(edgesarray.Length)];
@@ -71,9 +68,12 @@ var snipnodes = counts.OrderByDescending(x => x.Value).Take(6).Select(snip => sn
 
 edges = edges.SelectMany(edge => edge.Select(edg => (edge.Key, edg)).Where(x => !snipedges.Contains(x.edg))).ToLookup(x => x.Key, x => x.edg);
 
-var a = snipedges.First().Item1.Dump();
-var b = snipedges.First().Item2.Dump();
+var a = snipedges.First().Item1;
+var b = snipedges.First().Item2;
 
+// When I pass "" as my value for `to`, I flood the whole graph.
+// Since I'm picking nodes on opposite sides of one of the cuts,
+// I should flood each of the two partitions.
 DijkstraTheFuck(a, "");
 DijkstraTheFuck(b, "");
 
