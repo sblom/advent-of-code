@@ -18,9 +18,9 @@ var lines = await AoC.GetLinesWeb();
 var lines = @"".GetLines();
 #endif
 
-var parts = string.Join('\n', lines).Split("\n\n");
-var rules = parts[0].Split("\n").Extract<(int,int)>(@"(\d+)\|(\d+)").Dump();
-var books = parts[1].Split("\n").Extract<List<int>>(@"((\d+),?)+").Dump();
+var parts = lines.GroupLines();
+var rules = parts.First().Extract<(int,int)>(@"(\d+)\|(\d+)").Dump();
+var books = parts.Skip(1).First().Extract<List<int>>(@"((\d+),?)+").Dump();
 
 int t = 0;
 int t2 = 0;
