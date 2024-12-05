@@ -60,25 +60,6 @@ nope:;
         order.Insert(i, page);
     }
     t2 += order[order.Count / 2];
-    t2.Dump();
 }
 t.Dump();
 t2.Dump();
-//
-//t = 0;
-//foreach (var book in books)
-//{
-//    List<int> order = new();
-//    foreach (var page in book)
-//    {
-//        var before = rules.Where(r => r.Item2 == page).Select(r => r.Item1);
-//        var after = rules.Where(r => r.Item1 == page).Select(r => r.Item2);
-//        
-//        var split1 = order.Where(x => before.Contains(x));
-//        var split2 = order.Where(x => after.Contains(x));
-//        order = split1.Concat(new[]{page}).Concat(split2).ToList();
-//    }
-//    t2 += order[order.Count / 2];
-//}
-//t.Dump();
-//
