@@ -71,7 +71,7 @@ foreach (var cal in calibrations)
             {
                 0 => list[0] = list[0] + list[1],
                 1 => list[0] = list[0] * list[1],
-                2 => list[0] = long.Parse(list[0].ToString() + list[1].ToString())
+                2 => list[0] = list[0] * (long)Math.Pow(10,Math.Ceiling(Math.Log10(list[1] + 1))) + list[1]
             };
             list.RemoveAt(1);
             ops /= 3;
