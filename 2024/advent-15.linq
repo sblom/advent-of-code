@@ -12,7 +12,7 @@
 #load "..\Lib\Utils"
 #load "..\Lib\BFS"
 
-#define TEST
+//#define TEST
 
 #if !TEST
 var lines = await AoC.GetLinesWeb();
@@ -53,24 +53,12 @@ foreach (var line in moves)
     foreach (var move in line)
     {
         int n, x, y;
-        var (dy,dx) = GetDir(move);
-        bool freespace = false;
-        for (n = 0, (y,x) = (row + n * dy, col + n * dx); grid[y][x] != '#'; n++, (y,x) = (row + n * dy, col + n * dx))
+        var (dy, dx) = GetDir(move);
+
+        if (CanMove(grid, row, col, dy, dx))
         {
-            if (grid[y][x] == '.')
-            {
-                freespace = true;
-                break;
-            }
-        }
-        if (freespace)
-        {
-            for ((y,x) = (row + n * dy, col + n * dx); n > 0; n--, (y,x) = (row + n * dy, col + n * dx))
-            {
-                grid[y][x] = grid[y - dy][x - dx];
-            }
-            grid[y][x] = '.';
-            (row,col) = (row + dy, col + dx);
+            Move(grid, row, col, dy, dx);
+            (row, col) = (row + dy, col + dx);
         }
     }
 }
@@ -105,9 +93,9 @@ foreach (var line in moves)
         int n, x, y;
         var (dy, dx) = GetDir(move);
         
-        if (CanMove(row, col, dy, dx))
+        if (CanMove(widegrid, row, col, dy, dx))
         {
-            Move(row, col, dy, dx);
+            Move(widegrid, row, col, dy, dx);
             (row, col) = (row + dy, col + dx);
         }
     }
@@ -130,66 +118,77 @@ for (int i = 0; i < widegrid.Length; i++)
 
 c.Dump("Part 2");
 
-void Move(int row, int col, int dy, int dx)
+static void Move(char[][] grid, int row, int col, int dy, int dx)
 {
-    if (widegrid[row][col] == '.') return;
-    if (widegrid[row][col] == '#') throw new Exception();
+    if (grid[row][col] == '.') return;
+    if (grid[row][col] == '#') throw new Exception();
 
-    if (widegrid[row][col] == '@')
+    if (grid[row][col] == '@')
     {
-        Move(row + dy, col + dx, dy, dx);
-        widegrid[row + dy][col + dx] = '@';
-        widegrid[row][col] = '.';
-        return;
-    }    
-    if (dy == 0  && widegrid[row][col] is '[' or ']')
-    {
-        Move(row + dy, col + dx, dy, dx);
-        widegrid[row + dy][col + dx] = widegrid[row][col];
-        widegrid[row][col] = '.';
+        Move(grid, row + dy, col + dx, dy, dx);
+        grid[row + dy][col + dx] = '@';
+        grid[row][col] = '.';
         return;
     }
-    if (dx == 0 && widegrid[row][col] is '[')
+    if (grid[row][col] == 'O')
+    {
+        Move(grid, row + dy, col + dx, dy, dx);
+        grid[row + dy][col + dx] = 'O';
+        grid[row][col] = '.';
+        return;
+    }
+    if (dy == 0  && grid[row][col] is '[' or ']')
+    {
+        Move(grid, row + dy, col + dx, dy, dx);
+        grid[row + dy][col + dx] = grid[row][col];
+        grid[row][col] = '.';
+        return;
+    }
+    if (dx == 0 && grid[row][col] is '[')
     {        
-        Move(row + dy, col, dy, dx);
-        Move(row + dy, col + 1, dy, dx);
-        widegrid[row + dy][col] = widegrid[row][col];
-        widegrid[row + dy][col + 1] = widegrid[row][col + 1];
-        widegrid[row][col] = '.';
-        widegrid[row][col + 1] = '.';
+        Move(grid, row + dy, col, dy, dx);
+        Move(grid, row + dy, col + 1, dy, dx);
+        grid[row + dy][col] = grid[row][col];
+        grid[row + dy][col + 1] = grid[row][col + 1];
+        grid[row][col] = '.';
+        grid[row][col + 1] = '.';
         return;
     }
-    if (dx == 0 && widegrid[row][col] is ']')
+    if (dx == 0 && grid[row][col] is ']')
     {
-        Move(row + dy, col, dy, dx);
-        Move(row + dy, col - 1, dy, dx);
-        widegrid[row + dy][col] = widegrid[row][col];
-        widegrid[row + dy][col - 1] = widegrid[row][col - 1];
-        widegrid[row][col] = '.';
-        widegrid[row][col - 1] = '.';
+        Move(grid, row + dy, col, dy, dx);
+        Move(grid, row + dy, col - 1, dy, dx);
+        grid[row + dy][col] = grid[row][col];
+        grid[row + dy][col - 1] = grid[row][col - 1];
+        grid[row][col] = '.';
+        grid[row][col - 1] = '.';
         return;
     }
     
     throw new Exception();
 }
 
-bool CanMove(int row, int col, int dy, int dx)
+static bool CanMove(char[][] grid, int row, int col, int dy, int dx)
 {
-    if (widegrid[row][col] == '.') return true;
-    if (widegrid[row][col] == '#') return false;
-    if (widegrid[row][col] == '@') return CanMove(row + dy, col + dx, dy, dx);
+    if (grid[row][col] == '.') return true;
+    if (grid[row][col] == '#') return false;
+    if (grid[row][col] == '@') return CanMove(grid, row + dy, col + dx, dy, dx);
+    if (grid[row][col] == 'O')
+    {
+        return CanMove(grid, row + dy, col + dx, dy, dx);
+    }
     // horizontal
-    if (dy == 0 && widegrid[row][col] is '[' or ']')
+    if (dy == 0 && grid[row][col] is '[' or ']')
     {
-        return CanMove(row, col + 2 * dx, dy, dx);
+        return CanMove(grid, row, col + 2 * dx, dy, dx);
     }
-    if (dx == 0 && widegrid[row][col] is '[')
+    if (dx == 0 && grid[row][col] is '[')
     {
-        return CanMove(row + dy, col, dy, dx) && CanMove(row + dy, col + 1, dy, dx);
+        return CanMove(grid, row + dy, col, dy, dx) && CanMove(grid, row + dy, col + 1, dy, dx);
     }
-    if (dx == 0 && widegrid[row][col] is ']')
+    if (dx == 0 && grid[row][col] is ']')
     {
-        return CanMove(row + dy, col, dy, dx) && CanMove(row + dy, col - 1, dy, dx);
+        return CanMove(grid, row + dy, col, dy, dx) && CanMove(grid, row + dy, col - 1, dy, dx);
     }
     else throw new Exception();
 }
