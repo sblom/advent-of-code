@@ -22,26 +22,31 @@ WriteLine(c);
 
 d = 50; c = 0;
 
+int c2 = 0;
+
 foreach (var line in lines)
 {
-    var (cmd, val) = line.Extract<(string, int)>(@"^(.)(\d+)");
+    var (cmd, val) = line.Extract<(string, int)>(@"^(.)(\d+)$");
+
+    c2 += val / 100;
+    val = val % 100;
 
     if (cmd == "R")
     {
-        for (int i = 0; i < val; i++)
+        if (d + val >= 100)
         {
-            d = (d + 1) % 100;
-            if (d == 0) c++;
+            c2++;
         }
+        d = (d + val) % 100;
     }
     else
     {
-        for (int i = 0; i < val; i++)
+        if (d > 0 && d - val <= 0)
         {
-            d = (100 + d - 1) % 100;
-            if (d == 0) c++;
+            c2++;
         }
+        d = (100 + d - val) % 100;
     }
 }
 
-WriteLine(c);
+WriteLine(c2);
