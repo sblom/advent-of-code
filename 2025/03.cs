@@ -28,3 +28,38 @@ foreach (var line in lines)
 }
 
 WriteLine(c);
+
+long t = 0;
+
+foreach (var line in lines)
+{
+    var dp = new Dictionary<int, long>
+    {
+        [0] = 0,
+    };
+    for (int i = line.Length - 1; i >= 0; i--)
+    {
+        for (int j = 12; j >= 0; j--)
+        {
+            if (dp.ContainsKey(j))
+            {
+                var v = dp[j];
+                var nv = (long)(Math.Pow(10, j)) * (line[i] - '0') + v;
+                if (dp.ContainsKey(j + 1))
+                {
+                    dp[j + 1] = Math.Max(dp[j + 1], nv);
+                }
+                else
+                {
+                    dp[j + 1] = nv;
+                }
+            }
+        }
+    }
+
+    Console.WriteLine(dp[12]);
+
+    t += dp[12];
+}
+
+WriteLine(t);
