@@ -40,6 +40,8 @@ vvv<<^>^v^^><<>>><>^<<><^vv^^<>vvv<>><^^v>^>vv<>v<<<<v<^v>^<^^>>>^<v<v
 v^^>>><<^^<>>^v^<v^vv<>v^<<>^<^v^v><^<<<><<^<v><v<>vv>>v><v^<vv<>v^<<^".Replace("\\","").GetLines();
 #endif
 
+var dc = new DumpContainer().DumpFixed();
+
 var parts = lines.GroupLines();
 
 var grid = parts.First().Select(x => x.ToCharArray()).ToArray();
@@ -47,6 +49,10 @@ var moves = parts.Last();
 
 var row = grid.Index().Where(x => x.Item.Contains('@')).Single().Index;
 var col = grid[row].Index().Where(x => x.Item == '@').Single().Index;
+
+#if TRACE
+dc.Content = grid.Select(x => string.Join("", x));
+#endif
 
 foreach (var line in moves)
 {
@@ -59,24 +65,14 @@ foreach (var line in moves)
         {
             Move(grid, row, col, dy, dx);
             (row, col) = (row + dy, col + dx);
+#if TRACE            
+            dc.Content = grid.Select(x => string.Join("", x));
+#endif
         }
     }
 }
 
-int c = 0;
-
-for (int i = 0; i < grid.Length; i++)
-{
-    for (int j = 0; j < grid[0].Length; j++)
-    {
-        if (grid[i][j] == 'O')
-        {
-            c += i * 100 + j;
-        }
-    }
-}
-
-c.Dump("Part 1");
+GetGpsSum(grid).Dump("Part 1");
 
 //grid.Select(x => string.Join("", x)).DumpFixed();
 
@@ -97,26 +93,32 @@ foreach (var line in moves)
         {
             Move(widegrid, row, col, dy, dx);
             (row, col) = (row + dy, col + dx);
+#if TRACE            
+            dc.Content = widegrid.Select(x => string.Join("", x));
+#endif
         }
     }
 }
 
-widegrid.Select(x => string.Join("", x)).DumpFixed();
+GetGpsSum(widegrid).Dump("Part 2");
 
-c = 0;
+dc.ClearContent();
 
-for (int i = 0; i < widegrid.Length; i++)
+static int GetGpsSum(char[][] grid)
 {
-    for (int j = 0; j < widegrid[0].Length; j++)
+    int c = 0;
+    for (int i = 0; i < grid.Length; i++)
     {
-        if (widegrid[i][j] == '[')
+        for (int j = 0; j < grid[0].Length; j++)
         {
-            c += i * 100 + j;
+            if (grid[i][j] is '[' or 'O')
+            {
+                c += i * 100 + j;
+            }
         }
     }
+    return c;
 }
-
-c.Dump("Part 2");
 
 static void Move(char[][] grid, int row, int col, int dy, int dx)
 {

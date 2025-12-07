@@ -35,7 +35,7 @@ public static partial class AoC
             Console.WriteLine($"Downloading input: {url}");
             var contents = await DownloadInput(int.Parse(match.Groups["year"].Value), int.Parse(match.Groups["day"].Value));
             File.WriteAllText(inputName, contents);
-            contents.Dump("Downloaded");
+            contents.DumpFixed("Downloaded");
         }
         return File.ReadLines(inputName);
     }
